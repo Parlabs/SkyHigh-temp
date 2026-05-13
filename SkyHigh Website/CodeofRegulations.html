@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkyHigh Network — The Best Virtual Aviation Network</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --c1: #0f2535;   /* deep navy */
+  --c2: #25562d;   /* forest green */
+  --c3: #8cc576;   /* lime accent */
+  --c4: #0e1a26;   /* darkest bg */
+  --c5: #193247;   /* mid blue */
+  --glass: rgba(15,37,53,0.55);
+  --glass2: rgba(14,26,38,0.65);
+  --border: rgba(140,197,118,0.14);
+  --border-hi: rgba(140,197,118,0.28);
+  --text: #d0e8d8;
+  --muted: #6a9a7e;
+  --font-head: 'Plus Jakarta Sans', sans-serif;
+  --font-body: 'Lexend', sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--c4);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+
+/* ─── BACKGROUND CANVAS ─── */
+.bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.28;
+}
+.orb1 { width: 700px; height: 500px; background: radial-gradient(circle, #25562d, transparent 70%); top: -100px; left: -200px; animation: float1 22s ease-in-out infinite alternate; }
+.orb2 { width: 600px; height: 600px; background: radial-gradient(circle, #0f2535, transparent 70%); bottom: 0; right: -150px; animation: float2 18s ease-in-out infinite alternate; }
+.orb3 { width: 400px; height: 300px; background: radial-gradient(circle, #8cc57630, transparent 70%); top: 40%; left: 40%; animation: float3 26s ease-in-out infinite alternate; }
+@keyframes float1 { to { transform: translate(60px, 80px); } }
+@keyframes float2 { to { transform: translate(-80px, -60px); } }
+@keyframes float3 { to { transform: translate(40px, -40px); } }
+
+/* radar rings subtle bg */
+.radar-bg {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.04;
+}
+.radar-bg circle { fill: none; stroke: #8cc576; stroke-width: 1; }
+
+* { position: relative; z-index: 1; }
+.bg-canvas, .radar-bg { z-index: 0; }
+
+/* ─── NAV ─── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  padding: 0 40px;
+  gap: 0;
+  background: rgba(14,26,38,0.7);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border-bottom: 1px solid var(--border-hi);
+  box-shadow: 0 4px 32px rgba(0,0,0,0.35);
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  flex-shrink: 0;
+  margin-right: auto;
+}
+.nav-logo-badge {
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 14px;
+  color: #0e1a26;
+  box-shadow: 0 0 16px rgba(140,197,118,0.45), 0 2px 8px rgba(0,0,0,0.4);
+  letter-spacing: 0.02em;
+}
+.nav-logo-text {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text);
+  line-height: 1.1;
+}
+.nav-logo-sub {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  list-style: none;
+}
+.nav-links a {
+  display: block;
+  padding: 8px 14px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: color 0.2s, background 0.2s;
+  letter-spacing: 0.01em;
+}
+.nav-links a:hover { color: var(--text); background: rgba(140,197,118,0.08); }
+.nav-links a.active { color: var(--c3); }
+
+.nav-profile {
+  position: relative;
+  margin-left: 12px;
+}
+
+.profile-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--border-hi);
+  background: rgba(15,37,53,0.8);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: var(--muted);
+  transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.profile-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  fill: none;
+}
+
+.profile-btn:hover {
+  background: rgba(140,197,118,0.12);
+  border-color: var(--border-hi);
+  color: var(--c3);
+  box-shadow: 0 0 12px rgba(140,197,118,0.3);
+}
+
+.profile-menu {
+  position: absolute;
+  top: 42px;
+  right: 0;
+  min-width: 180px;
+  background: rgba(14,26,38,0.96);
+  border-radius: 12px;
+  border: 1px solid var(--border-hi);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.6);
+  padding: 8px 0;
+  backdrop-filter: blur(18px);
+  z-index: 1200;
+}
+
+.profile-menu-header {
+  padding: 8px 14px 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.profile-menu-item {
+  width: 100%;
+  text-align: left;
+  padding: 8px 14px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 13px;
+  cursor: pointer;
+  display: block;
+  transition: background 0.15s, color 0.15s;
+}
+
+.profile-menu-item:hover {
+  background: rgba(140,197,118,0.12);
+  color: var(--c3);
+}
+
+.nav-cta {
+  margin-left: 20px;
+  padding: 9px 20px;
+  background: linear-gradient(135deg, #8cc576, #3d8a35);
+  color: #0e1a26 !important;
+  font-weight: 700 !important;
+  border-radius: 9px;
+  font-size: 13.5px;
+  text-decoration: none;
+  transition: box-shadow 0.2s, transform 0.2s !important;
+  box-shadow: 0 0 20px rgba(140,197,118,0.3);
+  white-space: nowrap;
+}
+.nav-cta:hover { transform: translateY(-1px) !important; box-shadow: 0 0 30px rgba(140,197,118,0.5) !important; background: rgba(0,0,0,0) !important; background: linear-gradient(135deg, #a0d888, #4da040) !important; }
+
+/* ─── HERO ─── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 120px 40px 80px;
+  position: relative;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(220, 68, 68, 0.12);
+  border: 1px solid rgba(255, 110, 110, 0.35);
+  border-radius: 999px;
+  padding: 5px 16px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #ff6b6b;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+  backdrop-filter: blur(8px);
+  animation: fadeUp 0.8s ease both;
+}
+.hero-eyebrow::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: #ff6b6b;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #ff6b6b;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.7)} }
+
+.hero h1 {
+  font-family: var(--font-head);
+  font-size: clamp(42px, 7vw, 88px);
+  font-weight: 800;
+  line-height: 1.0;
+  letter-spacing: -0.03em;
+  color: #eaf4ec;
+  margin-bottom: 12px;
+  animation: fadeUp 0.8s 0.1s ease both;
+}
+.hero h1 span {
+  background: linear-gradient(135deg, #8cc576, #5bbf50, #c8e8b0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: clamp(16px, 2vw, 20px);
+  font-weight: 300;
+  color: var(--muted);
+  max-width: 560px;
+  margin: 0 auto 40px;
+  animation: fadeUp 0.8s 0.2s ease both;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: fadeUp 0.8s 0.3s ease both;
+}
+
+.btn-primary {
+  padding: 14px 32px;
+  background: linear-gradient(135deg, #8cc576, #3d8a35);
+  color: #0e1a26;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 15px;
+  border-radius: 10px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 0 24px rgba(140,197,118,0.35), 0 4px 16px rgba(0,0,0,0.3);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(140,197,118,0.5), 0 8px 24px rgba(0,0,0,0.4); }
+
+.btn-secondary {
+  padding: 14px 32px;
+  background: var(--glass);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 15px;
+  border-radius: 10px;
+  text-decoration: none;
+  border: 1px solid var(--border-hi);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  backdrop-filter: blur(10px);
+}
+.btn-secondary:hover { background: rgba(140,197,118,0.12); border-color: rgba(140,197,118,0.4); }
+
+/* ─── LIVE STATS BAR ─── */
+.stats-bar {
+  width: 100%;
+  max-width: 960px;
+  margin: 60px auto 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border-hi);
+  border-radius: 16px;
+  overflow: hidden;
+  backdrop-filter: blur(16px);
+  animation: fadeUp 0.8s 0.4s ease both;
+}
+.stat-item {
+  background: rgba(15,37,53,0.6);
+  padding: 24px 20px;
+  text-align: center;
+  backdrop-filter: blur(16px);
+  transition: background 0.2s;
+}
+.stat-item:hover { background: rgba(140,197,118,0.08); }
+.stat-val {
+  font-family: var(--font-head);
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--c3);
+  display: block;
+  line-height: 1;
+  margin-bottom: 4px;
+  text-shadow: 0 0 20px rgba(140,197,118,0.4);
+}
+.stat-label {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+@keyframes fadeUp { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+
+/* ─── SECTION COMMON ─── */
+section { padding: 96px 40px; max-width: 1200px; margin: 0 auto; }
+.section-full { max-width: 100%; padding-left: 0; padding-right: 0; }
+.section-inner { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
+
+.section-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c3);
+  margin-bottom: 12px;
+}
+.section-title {
+  font-family: var(--font-head);
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 800;
+  color: #eaf4ec;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+.section-desc {
+  font-size: 16px;
+  color: var(--muted);
+  max-width: 520px;
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+/* ─── GET STARTED STEPS ─── */
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 52px;
+}
+.step-card {
+  background: rgba(15,37,53,0.55);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px 28px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+  box-shadow: inset 0 1px 0 rgba(140,197,118,0.08);
+}
+.step-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--border-hi);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 24px rgba(140,197,118,0.08), inset 0 1px 0 rgba(140,197,118,0.15);
+}
+.step-num {
+  font-family: var(--font-head);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--c3);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.step-num::after { content:''; flex:1; height:1px; background: linear-gradient(to right, var(--border-hi), transparent); }
+.step-icon {
+  width: 52px; height: 52px;
+  background: rgba(140,197,118,0.1);
+  border: 1px solid rgba(140,197,118,0.2);
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 20px;
+  color: var(--c3);
+}
+.step-title {
+  font-family: var(--font-head);
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.step-desc { font-size: 14px; color: var(--muted); line-height: 1.65; font-weight: 300; }
+.step-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 20px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--c3);
+  text-decoration: none;
+  transition: gap 0.2s;
+}
+.step-link:hover { gap: 10px; }
+
+/* ─── ABOUT SPLIT ─── */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+.about-visual {
+  position: relative;
+}
+.radar-card {
+  background: rgba(15,37,53,0.65);
+  border: 1px solid var(--border-hi);
+  border-radius: 20px;
+  padding: 32px;
+  backdrop-filter: blur(24px);
+  box-shadow: 0 8px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(140,197,118,0.1);
+  overflow: hidden;
+}
+.radar-screen {
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 320px;
+  margin: 0 auto;
+  display: block;
+}
+.about-features { margin-top: 48px; display: flex; flex-direction: column; gap: 20px; }
+.feat-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.feat-icon {
+  width: 40px; height: 40px;
+  flex-shrink: 0;
+  background: rgba(140,197,118,0.1);
+  border: 1px solid rgba(140,197,118,0.18);
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  color: var(--c3);
+  margin-top: 2px;
+}
+.feat-title { font-family: var(--font-head); font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.feat-desc { font-size: 13.5px; color: var(--muted); line-height: 1.6; font-weight: 300; }
+
+/* ─── EVENTS ─── */
+.events-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 36px; flex-wrap: wrap; gap: 16px; }
+.events-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.event-card {
+  background: rgba(15,37,53,0.55);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+  transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+.event-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-hi);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.4), 0 0 20px rgba(140,197,118,0.06);
+}
+.event-thumb {
+  height: 130px;
+  background: linear-gradient(135deg, var(--c5), var(--c2));
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.event-thumb::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 40%, rgba(14,26,38,0.7));
+}
+.event-thumb svg { opacity: 0.3; }
+.event-badge {
+  position: absolute;
+  top: 12px; left: 12px;
+  z-index: 2;
+  background: rgba(140,197,118,0.2);
+  border: 1px solid rgba(140,197,118,0.35);
+  backdrop-filter: blur(8px);
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--c3);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.event-body { padding: 20px; }
+.event-date { font-size: 11.5px; color: var(--c3); font-weight: 600; margin-bottom: 6px; letter-spacing: 0.04em; }
+.event-title { font-family: var(--font-head); font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; line-height: 1.25; }
+.event-desc { font-size: 13px; color: var(--muted); line-height: 1.6; font-weight: 300; }
+
+/* ─── NEWS ─── */
+.news-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 20px; margin-top: 36px; }
+.news-main {
+  background: rgba(15,37,53,0.55);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+  transition: border-color 0.2s;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+.news-main:hover { border-color: var(--border-hi); }
+.news-main-thumb {
+  height: 220px;
+  background: linear-gradient(160deg, #0f2535 0%, #25562d 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.news-main-thumb::before {
+  content: '';
+  position: absolute;
+  width: 300px; height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(140,197,118,0.15), transparent 70%);
+  top: -80px; right: -80px;
+}
+.news-main-body { padding: 28px; }
+.news-tag { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--c3); margin-bottom: 8px; }
+.news-main-title { font-family: var(--font-head); font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 10px; line-height: 1.2; }
+.news-main-excerpt { font-size: 14px; color: var(--muted); line-height: 1.7; font-weight: 300; }
+.news-main-meta { margin-top: 16px; font-size: 12px; color: rgba(106,154,126,0.7); }
+
+.news-side { display: flex; flex-direction: column; gap: 12px; }
+.news-card {
+  background: rgba(15,37,53,0.55);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  backdrop-filter: blur(16px);
+  flex: 1;
+  transition: border-color 0.2s, background 0.2s;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+.news-card:hover { border-color: var(--border-hi); background: rgba(140,197,118,0.05); }
+.news-card-title { font-family: var(--font-head); font-size: 14.5px; font-weight: 700; color: var(--text); margin-bottom: 6px; line-height: 1.3; }
+.news-card-excerpt { font-size: 12.5px; color: var(--muted); line-height: 1.6; font-weight: 300; }
+.news-card-meta { margin-top: 10px; font-size: 11px; color: rgba(106,154,126,0.6); }
+
+/* ─── AIRPORTS ─── */
+.airports-section {
+  background: rgba(15,37,53,0.4);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  padding: 80px 40px;
+}
+.airports-inner { max-width: 1200px; margin: 0 auto; }
+.airports-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 44px; }
+.airport-card {
+  background: rgba(15,37,53,0.6);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  backdrop-filter: blur(20px);
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+.airport-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-hi);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.35), 0 0 16px rgba(140,197,118,0.07);
+}
+.airport-icao { font-family: var(--font-head); font-size: 26px; font-weight: 800; color: var(--c3); letter-spacing: 0.04em; margin-bottom: 4px; text-shadow: 0 0 16px rgba(140,197,118,0.3); }
+.airport-name { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+.airport-country { font-size: 11.5px; color: var(--muted); }
+.airport-rating {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.rating-pill {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(140,197,118,0.12);
+  border: 1px solid rgba(140,197,118,0.22);
+  color: var(--c3);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.rating-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--c3); box-shadow: 0 0 6px var(--c3); animation: pulse 2s ease-in-out infinite; }
+
+/* ─── ATC SECTION ─── */
+.atc-section { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+.atc-ratings { margin-top: 36px; display: flex; flex-direction: column; gap: 10px; }
+.atc-row {
+  display: grid;
+  grid-template-columns: 60px 1fr auto;
+  align-items: center;
+  gap: 16px;
+  background: rgba(15,37,53,0.5);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  backdrop-filter: blur(16px);
+  transition: background 0.2s, border-color 0.2s;
+}
+.atc-row:hover { background: rgba(140,197,118,0.06); border-color: var(--border-hi); }
+.atc-code { font-family: var(--font-head); font-size: 18px; font-weight: 800; color: var(--c3); }
+.atc-name { font-size: 13.5px; font-weight: 500; color: var(--text); }
+.atc-desc { font-size: 12px; color: var(--muted); margin-top: 1px; }
+.atc-badge {
+  font-size: 10px; font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(37,86,45,0.35);
+  border: 1px solid rgba(140,197,118,0.2);
+  color: var(--c3);
+  white-space: nowrap;
+  letter-spacing: 0.05em;
+}
+
+.atc-panel {
+  background: rgba(15,37,53,0.55);
+  border: 1px solid var(--border-hi);
+  border-radius: 20px;
+  padding: 36px;
+  backdrop-filter: blur(24px);
+  box-shadow: inset 0 1px 0 rgba(140,197,118,0.1);
+}
+.atc-panel-title { font-family: var(--font-head); font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 16px; }
+.atc-panel-desc { font-size: 14px; color: var(--muted); line-height: 1.75; font-weight: 300; margin-bottom: 28px; }
+.atc-actions { display: flex; flex-direction: column; gap: 10px; }
+.atc-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  transition: background 0.2s, border-color 0.2s;
+  border: 1px solid var(--border);
+  background: rgba(14,26,38,0.5);
+}
+.atc-action-btn:hover { background: rgba(140,197,118,0.1); border-color: var(--border-hi); }
+.atc-action-btn svg { flex-shrink: 0; color: var(--c3); }
+.atc-action-btn span { margin-left: auto; color: var(--muted); font-size: 13px; }
+
+/* ─── COMMUNITY / JOIN ─── */
+.community-strip {
+  padding: 96px 40px;
+  text-align: center;
+}
+.community-inner { max-width: 700px; margin: 0 auto; }
+.community-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 48px auto 0; max-width: 900px; }
+.comm-card {
+  background: rgba(15,37,53,0.55);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 20px;
+  backdrop-filter: blur(20px);
+  transition: transform 0.2s, border-color 0.2s;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+.comm-card:hover { transform: translateY(-3px); border-color: var(--border-hi); }
+.comm-icon { width: 44px; height: 44px; border-radius: 10px; background: rgba(140,197,118,0.1); border: 1px solid rgba(140,197,118,0.18); display: grid; place-items: center; margin: 0 auto 16px; color: var(--c3); }
+.comm-title { font-family: var(--font-head); font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.comm-desc { font-size: 13px; color: var(--muted); line-height: 1.6; font-weight: 300; }
+
+/* ─── FOOTER ─── */
+footer {
+  border-top: 1px solid var(--border);
+  background: rgba(14,26,38,0.8);
+  backdrop-filter: blur(20px);
+  padding: 60px 40px 40px;
+}
+.footer-inner { max-width: 1200px; margin: 0 auto; }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
+.footer-logo { font-family: var(--font-head); font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 12px; }
+.footer-logo-badge { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; margin-bottom: 14px; }
+.footer-desc { font-size: 13px; color: var(--muted); line-height: 1.7; font-weight: 300; max-width: 260px; }
+.footer-col-title { font-family: var(--font-head); font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(140,197,118,0.6); margin-bottom: 16px; }
+.footer-links { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.footer-links a { font-size: 13.5px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+.footer-links a:hover { color: var(--text); }
+.footer-bottom { padding-top: 28px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.footer-copy { font-size: 12px; color: rgba(106,154,126,0.6); }
+.footer-socials { display: flex; gap: 10px; }
+.social-btn {
+  width: 34px; height: 34px;
+  background: rgba(15,37,53,0.7);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.social-btn:hover { background: rgba(140,197,118,0.12); color: var(--c3); border-color: var(--border-hi); }
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--c4); }
+::-webkit-scrollbar-thumb { background: var(--c5); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--c2); }
+
+
+footer {
+      border-top: 1px solid var(--border);
+      background: rgba(14, 26, 38, 0.8);
+      backdrop-filter: blur(20px);
+      padding: 60px 40px 40px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+
+    .footer-logo {
+      font-family: var(--font-head);
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .footer-logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      margin-bottom: 14px;
+    }
+
+    .footer-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.7;
+      font-weight: 300;
+      max-width: 260px;
+    }
+
+    .footer-col-title {
+      font-family: var(--font-head);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(140, 197, 118, 0.6);
+      margin-bottom: 16px;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .footer-links a {
+      font-size: 13.5px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: var(--text);
+    }
+
+    .footer-bottom {
+      padding-top: 28px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .footer-copy {
+      font-size: 12px;
+      color: rgba(106, 154, 126, 0.6);
+    }
+
+    .footer-socials {
+      display: flex;
+      gap: 10px;
+    }
+
+    .social-btn {
+      width: 34px;
+      height: 34px;
+      background: rgba(15, 37, 53, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+
+    .social-btn:hover {
+      background: rgba(140, 197, 118, 0.12);
+      color: var(--c3);
+      border-color: var(--border-hi);
+    }
+
+    @media (max-width: 900px) {
+      nav { padding: 0 18px; }
+      .hero { padding: 96px 18px 56px; }
+      section { padding: 72px 18px; }
+      .stats-bar { grid-template-columns: repeat(2, 1fr); }
+      .steps-grid { grid-template-columns: 1fr; }
+      .about-grid { grid-template-columns: 1fr; gap: 32px; }
+      .airports-grid { grid-template-columns: repeat(2, 1fr); }
+      .events-grid { grid-template-columns: 1fr; }
+      .news-grid { grid-template-columns: 1fr; }
+      .atc-section { grid-template-columns: 1fr; }
+      .community-cards { grid-template-columns: 1fr; }
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .footer-inner { grid-template-columns: 1fr; }
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--c4); }
+    ::-webkit-scrollbar-thumb { background: var(--c5); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--c2); }
+/* ─── DIVIDERS ─── */
+.divider { height: 1px; background: linear-gradient(to right, transparent, var(--border-hi), transparent); max-width: 1200px; margin: 0 auto; }
+</style>
+</head>
+<body>
+
+<!-- BACKGROUND -->
+<div class="bg-canvas">
+  <div class="bg-orb orb1"></div>
+  <div class="bg-orb orb2"></div>
+  <div class="bg-orb orb3"></div>
+</div>
+<svg class="radar-bg" width="900" height="900" viewBox="0 0 900 900">
+  <circle cx="450" cy="450" r="100"/><circle cx="450" cy="450" r="200"/>
+  <circle cx="450" cy="450" r="300"/><circle cx="450" cy="450" r="400"/>
+  <line x1="450" y1="50" x2="450" y2="850" stroke="#8cc576" stroke-width="1"/>
+  <line x1="50" y1="450" x2="850" y2="450" stroke="#8cc576" stroke-width="1"/>
+</svg>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-badge"><img src="icon-512.png" width=36></div>
+    <div>
+      <div class="nav-logo-text">SkyHigh Network</div>
+      <div class="nav-logo-sub">The Best Virtual Aviation Network</div>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#" class="active">Home</a></li>
+    <li><a href="#events">Events</a></li>
+    <li><a href="#atc">ATC Training</a></li>
+    <li><a href="#airports">Airports</a></li>
+    <li><a href="#news">News</a></li>
+    <li><a href="#community">Community</a></li>
+  </ul>
+  <a href="/join.html" class="nav-cta">Join→</a>
+
+<div class="nav-profile">
+  <button class="profile-btn" id="profile-button" aria-haspopup="true" aria-expanded="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="8" r="4"></circle>
+      <path d="M4 20c0-3.3 2.7-6 6-6h4c3.3 0 6 2.7 6 6"></path>
+    </svg>
+  </button>
+  <div class="profile-menu" id="profile-menu" hidden>
+    <div class="profile-menu-header" id="profile-name">Not signed in</div>
+    <button type="button" class="profile-menu-item" id="profile-link" hidden>Profile</button>
+    <button type="button" class="profile-menu-item" id="login-link">Log in</button>
+    <button type="button" class="profile-menu-item" id="logout-link" hidden>Log out</button>
+  </div>
+</div>
+</nav>
+<section class="hero" style="align-items:flex-start; text-align:left; min-height:auto; padding-top:120px;">
+  <div style="max-width:900px; margin:0 auto;">
+    <div class="section-tag">Network Policy</div>
+    <h1 class="section-title">SkyHigh Code of Regulations</h1>
+    <p class="section-desc" style="max-width:640px;">
+      This Code of Regulations defines the governance, membership, and disciplinary framework of the SkyHigh Network.
+    </p>
+
+    <div style="margin-top:32px; font-size:14px; color:#c9e1d0; line-height:1.7;">
+      <h3>1. General provisions</h3>
+<p>1.1 This Code of Regulations defines the governance, membership, and disciplinary framework of the SkyHigh Network.</p>
+<p>1.2 The Code is binding on all members and staff.</p>
+<p>1.3 The SkyHigh Board or its delegated governance body (“Network Management”) may amend this Code; reasonable notice of changes will be published on official channels.</p>
+
+<h3>2. Definitions</h3>
+<p>2.1 “Member” means any person who has an active SkyHigh account.</p>
+<p>2.2 “Staff” means any member holding an appointed role with administrative or supervisory authority.</p>
+<p>2.3 “ATC rating” and “Pilot rating” mean the competency levels awarded under the SkyHigh training system.</p>
+<p>2.4 “Network services” include, but are not limited to, servers, clients, web portals, training systems, documentation, and communication platforms controlled by SkyHigh.</p>
+
+<h3>3. Membership</h3>
+<p>3.1 Membership is granted at the discretion of SkyHigh and may be refused, suspended, or revoked without obligation to provide reasons where necessary to protect the network.</p>
+<p>3.2 Applicants must provide accurate information during registration and must promptly update their profile if material details change.</p>
+<p>3.3 SkyHigh may impose age restrictions or parental consent requirements as necessary to comply with applicable law.</p>
+<p>3.4 Membership is personal and non‑transferable.</p>
+
+<h3>4. Ratings and training</h3>
+<p>4.1 SkyHigh establishes ATC and Pilot rating structures to reflect member competency and authorisation.</p>
+<p>4.2 Training syllabi, assessment standards, and examiner appointment criteria shall be defined by the Training Department and approved by Network Management.</p>
+<p>4.3 Ratings may be issued, suspended, or revoked based on training outcomes, misconduct, or inactivity, subject to procedures defined by the Training Department.</p>
+<p>4.4 Members may not exercise the privileges of a rating that has been suspended or revoked.</p>
+
+<h3>5. Network connectivity and technical requirements</h3>
+<p>5.1 Members must use approved clients and software versions when connecting to the network.</p>
+<p>5.2 SkyHigh may limit or block connections that negatively impact performance, stability, or security.</p>
+<p>5.3 Members must maintain a reliable internet connection and suitable hardware for the services they intend to use.</p>
+<p>5.4 SkyHigh is not responsible for loss of data, connectivity, or simulator performance arising from use of the network.</p>
+
+<h3>6. Staff structure and authority</h3>
+<p>6.1 Network Management may establish departments and roles (including but not limited to Operations, Training, Events, and Technical) and appoint staff to these roles.</p>
+<p>6.2 Staff are empowered to enforce the Code of Conduct, this Code of Regulations, and any published procedures.</p>
+<p>6.3 Staff must act impartially, avoid conflicts of interest, and maintain confidentiality of information obtained in the course of their duties.</p>
+<p>6.4 Members must comply with reasonable instructions issued by staff in relation to network use or conduct.</p>
+
+<h3>7. Disciplinary process</h3>
+<p>7.1 Alleged breaches of the Code of Conduct or this Code of Regulations may be investigated by designated staff.</p>
+<p>7.2 Investigations may include review of logs, recordings, and other relevant evidence. Members may be asked to provide additional information.</p>
+<p>7.3 Pending investigation, SkyHigh may impose interim measures, including temporary suspension or restrictions, where necessary for safety or security.</p>
+<p>7.4 On conclusion of an investigation, possible outcomes include, without limitation: no action; informal counselling or education; written warning; temporary suspension of network access or ratings; permanent revocation of ratings; or permanent network ban.</p>
+
+<h3>8. Appeals</h3>
+<p>8.1 Members subject to a disciplinary decision may submit a written appeal within a specified time frame, as published in SkyHigh procedures.</p>
+<p>8.2 Appeals will normally be reviewed by staff who were not directly involved in the original decision.</p>
+<p>8.3 The appeal body may confirm, modify, or overturn the original decision.</p>
+<p>8.4 Except where required by law, the decision on appeal is final within the SkyHigh system.</p>
+
+<h3>9. Data protection and privacy</h3>
+<p>9.1 SkyHigh will collect and process personal data (including account identifiers, contact details, and log data) only as necessary to operate, secure, and develop the network.</p>
+<p>9.2 SkyHigh will take reasonable technical and organisational measures to protect member data, but cannot guarantee absolute security.</p>
+<p>9.3 SkyHigh will handle personal data in accordance with applicable data‑protection law in the United Kingdom, including the UK General Data Protection Regulation and the Data Protection Act 2018, as amended from time to time.</p>
+
+<h3>10. Amendments and interpretation</h3>
+<p>10.1 In case of ambiguity, the interpretation of Network Management shall prevail.</p>
+<p>10.2 Where any provision of this Code is found to be invalid or unenforceable, the remaining provisions remain in full force and effect.</p>
+<p>10.3 This Code is intended to coexist with the SkyHigh Code of Conduct and User Agreement; in the event of inconsistency, the User Agreement will normally take precedence on legal matters.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div>
+        <a href="index.html" class="footer-logo-badge">
+          <div class="nav-logo-badge"><img src="icon-512.png" width="36" alt=""></div>
+          <div>
+            <div class="footer-logo">SkyHigh Network</div>
+            <div style="font-size:11px;color:var(--muted);">The Best Virtual Aviation Network</div>
+          </div>
+        </a>
+        <p class="footer-desc">
+          The SkyHigh Network is a free, friendly network offering as‑real‑as‑it‑gets virtual aviation for pilots and controllers of all skill levels.
+        </p>
+      </div>
+
+      <div>
+        <div class="footer-col-title">Network</div>
+        <ul class="footer-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="events.html">Events</a></li>
+          <li><a href="#atc">ATC Training</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="footer-col-title">Community</div>
+        <ul class="footer-links">
+          <li><a href="https://discord.gg/eSdUKmmQB4" target="_blank">Discord</a></li>
+          <li><a href="#">Twitter / X</a></li>
+          <li><a href="#">YouTube</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="footer-col-title">Legal</div>
+        <ul class="footer-links">
+          <li><a href="UserAgreement.html">User Agreement</a></li>
+          <li><a href="CodeofRegulations.html">Code of Regulations</a></li>
+          <li><a href="conduct.html">Code of Conduct</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 SkyHigh Network Organisation</div>
+      <div class="footer-socials">
+        <a href="https://discord.gg/eSdUKmmQB4" class="social-btn" title="Discord">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515A13.2 13.2 0 0 0 12 3c-.982 0-1.955.11-2.912.327A19.79 19.79 0 0 0 4.203 4.37C2.76 6.69 2.026 9.21 2 11.77c.003 0 .006 0 .01.002A9.9 9.9 0 0 0 5.18 14.1a7.2 7.2 0 0 1 1.41-2.305 4.1 4.1 0 0 1-1.82-2.26 7.2 7.2 0 0 0 2.27 1.01 4.1 4.1 0 0 1 6.88 0 7.2 7.2 0 0 0 2.27-1.01 4.1 4.1 0 0 1-1.82 2.26 7.2 7.2 0 0 1 1.41 2.305 9.9 9.9 0 0 0 3.17-2.33c.004 0 .007 0 .01-.002-.03-2.56-.76-5.08-2.203-7.4z"></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+<script>
+  // Smooth nav link scroll + active state
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+    });
+  });
+
+  // Animated counter
+  function animateCount(el, target, suffix = '') {
+    let start = 0;
+    const duration = 2000;
+    const step = timestamp => {
+      if (!start) start = timestamp;
+      const progress = Math.min((timestamp - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.floor(eased * target).toLocaleString() + suffix;
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        animateCount(document.getElementById('stat-members'), updateTotalApplications);
+        animateCount(document.getElementById('stat-pilots'), 0);
+        animateCount(document.getElementById('stat-atc'), 0);
+        animateCount(document.getElementById('stat-airports'), 0);
+        observer.disconnect();
+      }
+    });
+  }, { threshold: 0.3 });
+  observer.observe(document.querySelector('.stats-bar'));
+
+  // Subtle scroll reveal
+  const reveals = document.querySelectorAll('.step-card, .event-card, .airport-card, .atc-row, .comm-card, .news-card, .news-main, .feat-row');
+  const revealObserver = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => {
+          e.target.style.opacity = '1';
+          e.target.style.transform = 'translateY(0)';
+        }, 60 * (Array.from(reveals).indexOf(e.target) % 4));
+        revealObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  reveals.forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(18px)';
+    el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    revealObserver.observe(el);
+  });
+</script>
+
+
+
+<!-- FIREBASE INITIALISATION + TOTAL APPLICATIONS COUNTER -->
+<script type="module">
+  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+  import {
+    getFirestore,
+    collection,
+    getCountFromServer
+  } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAdvM-qqfy5XXPNom8bRvVt4LXSG8818fw",
+    authDomain: "skyhigh-55704.firebaseapp.com",
+    projectId: "skyhigh-55704",
+    storageBucket: "skyhigh-55704.firebasestorage.app",
+    messagingSenderId: "1067950745554",
+    appId: "1:1067950745554:web:483ed877b0ea4085da8a0b",
+    measurementId: "G-1SJCXQPEQJ"
+  };
+
+  const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  async function updateTotalApplications() {
+    const el = document.getElementById('stat-members');
+    console.log('stat-members BEFORE script =', el?.textContent);
+    if (!el) return;
+
+    try {
+      const collRef = collection(db, 'joinApplications');
+      const snapshot = await getCountFromServer(collRef);
+      const count = snapshot.data().count;
+
+      console.log('joinApplications count =', count);
+      el.textContent = count.toString();
+      console.log('stat-members AFTER script =', el.textContent);
+    } catch (err) {
+      console.error('Failed to get joinApplications count from Firestore', err);
+    }
+  }
+
+  // Run after DOM is fully ready
+  window.addEventListener('load', updateTotalApplications);
+</script>
+
+<script type="module">
+  import { getApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+
+  const app = getApp();
+  const auth = getAuth(app);
+
+  const profileButton = document.getElementById('profile-button');
+  const profileMenu   = document.getElementById('profile-menu');
+  const profileName   = document.getElementById('profile-name');
+  const profileLink   = document.getElementById('profile-link');
+  const loginLink     = document.getElementById('login-link');
+  const logoutLink    = document.getElementById('logout-link');
+
+  function toggleMenu() {
+    if (!profileMenu) return;
+    const isHidden = profileMenu.hasAttribute('hidden');
+    if (isHidden) {
+      profileMenu.removeAttribute('hidden');
+      profileButton.setAttribute('aria-expanded', 'true');
+    } else {
+      profileMenu.setAttribute('hidden', '');
+      profileButton.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  function closeMenuOnOutsideClick(e) {
+    if (!profileMenu || !profileButton) return;
+    if (!profileMenu.contains(e.target) && !profileButton.contains(e.target)) {
+      profileMenu.setAttribute('hidden', '');
+      profileButton.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  if (profileButton) {
+    profileButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleMenu();
+    });
+    document.addEventListener('click', closeMenuOnOutsideClick);
+  }
+
+  // React to login/logout
+  onAuthStateChanged(auth, (user) => {
+    if (!profileMenu || !profileName || !profileLink || !loginLink || !logoutLink) return;
+
+    if (user) {
+      const display = user.displayName || user.email || 'Signed in';
+      profileName.textContent = display;
+      profileLink.hidden = false;
+      logoutLink.hidden = false;
+      loginLink.hidden = true;
+    } else {
+      profileName.textContent = 'Not signed in';
+      profileLink.hidden = true;
+      logoutLink.hidden = true;
+      loginLink.hidden = false;
+    }
+  });
+
+  // Menu item handlers
+  if (loginLink) {
+    loginLink.addEventListener('click', () => {
+      window.location.href = 'login.html';   // change if needed
+    });
+  }
+
+  if (profileLink) {
+    profileLink.addEventListener('click', () => {
+      window.location.href = 'profile.html'; // change if needed
+    });
+  }
+
+  if (logoutLink) {
+    logoutLink.addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        if (profileMenu && profileButton) {
+          profileMenu.setAttribute('hidden', '');
+          profileButton.setAttribute('aria-expanded', 'false');
+        }
+      } catch (err) {
+        console.error('Failed to sign out', err);
+      }
+    });
+  }
+</script>
+</body>
+</html>
