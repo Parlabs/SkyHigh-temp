@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Events • SkyHigh Network</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --c1:#0f2535;--c2:#25562d;--c3:#8cc576;--c4:#0e1a26;--c5:#193247;
+      --glass:rgba(15,37,53,0.55);--glass2:rgba(14,26,38,0.8);
+      --border:rgba(140,197,118,0.14);--border-hi:rgba(140,197,118,0.28);
+      --text:#d0e8d8;--muted:#6a9a7e;
+      --font-head:"Plus Jakarta Sans",sans-serif;
+      --font-body:"Lexend",sans-serif;
+    }
+    html{scroll-behavior:smooth;}
+    body{font-family:var(--font-body);background:var(--c4);color:var(--text);font-size:15px;line-height:1.65;overflow-x:hidden;}
+
+    .bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+    .bg-orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.28;}
+    .orb1{width:700px;height:500px;background:radial-gradient(circle,#25562d,transparent 70%);top:-100px;left:-200px;animation:float1 22s ease-in-out infinite alternate;}
+    .orb2{width:600px;height:600px;background:radial-gradient(circle,#0f2535,transparent 70%);bottom:0;right:-150px;animation:float2 18s ease-in-out infinite alternate;}
+    .orb3{width:400px;height:300px;background:radial-gradient(circle,rgba(140,197,118,.3),transparent 70%);top:40px;left:40px;animation:float3 26s ease-in-out infinite alternate;}
+    @keyframes float1{to{transform:translate(60px,80px);}}
+    @keyframes float2{to{transform:translate(-80px,-60px);}}
+    @keyframes float3{to{transform:translate(40px,-40px);}}
+    .radar-bg{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:0;pointer-events:none;opacity:.04;}
+    .radar-bg circle{fill:none;stroke:#8cc576;stroke-width:1;}
+    .radar-bg line{stroke:#8cc576;stroke-width:1;}
+
+    nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:64px;display:flex;align-items:center;padding:0 40px;gap:0;background:rgba(14,26,38,.7);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border-bottom:1px solid var(--border-hi);box-shadow:0 4px 32px rgba(0,0,0,.35);}
+    .nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0;margin-right:auto;}
+    .nav-logo-badge{width:36px;height:36px;background:transparent;border-radius:8px;display:grid;place-items:center;font-family:var(--font-head);font-weight:800;font-size:14px;color:#0e1a26;box-shadow:0 0 16px rgba(140,197,118,.45),0 2px 8px rgba(0,0,0,.4);}
+    .nav-logo-badge img{width:36px;height:36px;}
+    .nav-logo-text{font-family:var(--font-head);font-weight:700;font-size:16px;color:var(--text);line-height:1.1;}
+    .nav-logo-sub{font-size:10px;font-weight:400;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;}
+    .nav-links{display:flex;align-items:center;gap:4px;list-style:none;}
+    .nav-links a{display:block;padding:8px 14px;font-size:13.5px;font-weight:500;color:var(--muted);text-decoration:none;border-radius:8px;transition:color .2s,background .2s;letter-spacing:.01em;}
+    .nav-links a:hover{color:var(--text);background:rgba(140,197,118,.08);}
+    .nav-links a.active{color:var(--c3);}
+    .nav-profile{position:relative;margin-left:12px;}
+    .profile-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border-hi);background:rgba(15,37,53,.8);display:grid;place-items:center;cursor:pointer;color:var(--muted);transition:background .2s,border-color .2s,color .2s,box-shadow .2s;}
+    .profile-btn svg{width:18px;height:18px;stroke:currentColor;stroke-width:1.6;fill:none;}
+    .profile-btn:hover{background:rgba(140,197,118,.12);border-color:var(--border-hi);color:var(--c3);box-shadow:0 0 12px rgba(140,197,118,.3);}
+    .profile-menu{position:absolute;top:42px;right:0;min-width:180px;background:rgba(14,26,38,.96);border-radius:12px;border:1px solid var(--border-hi);box-shadow:0 8px 28px rgba(0,0,0,.6);padding:8px 0;backdrop-filter:blur(18px);z-index:1200;}
+    .profile-menu[hidden]{display:none;}
+    .profile-menu-header{padding:8px 14px 6px;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
+    .profile-menu-item{width:100%;text-align:left;padding:8px 14px;border:none;background:transparent;color:var(--text);font-family:var(--font-body);font-size:13px;cursor:pointer;display:block;transition:background .15s,color .15s;}
+    .profile-menu-item:hover{background:rgba(140,197,118,.12);color:var(--c3);}
+    .nav-cta{margin-left:20px;padding:9px 20px;background:linear-gradient(135deg,#8cc576,#3d8a35);color:#0e1a26!important;font-weight:700!important;border-radius:9px;font-size:13.5px;text-decoration:none;transition:box-shadow .2s,transform .2s!important;box-shadow:0 0 20px rgba(140,197,118,.3);white-space:nowrap;}
+    .nav-cta:hover{transform:translateY(-1px)!important;box-shadow:0 0 30px rgba(140,197,118,.5)!important;background:linear-gradient(135deg,#a0d888,#4da040)!important;}
+
+    .page-shell{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:96px 40px 40px;}
+    .page-eyebrow{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--c3);margin-bottom:6px;}
+    .page-title{font-family:var(--font-head);font-size:clamp(30px,4vw,40px);font-weight:800;margin-bottom:6px;}
+    .page-subtitle{font-size:13.5px;color:var(--muted);max-width:520px;}
+
+    .filters{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;margin-bottom:14px;}
+    .filter-pill{padding:6px 12px;border-radius:999px;border:1px solid rgba(140,197,118,.35);background:rgba(5,15,23,.9);font-size:12px;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
+    .filter-pill.active{background:rgba(140,197,118,.18);color:var(--c3);border-color:rgba(140,197,118,.7);}
+    .filter-pill span{font-size:11px;opacity:.7;}
+    .search-input{flex:1 1 180px;min-width:180px;border-radius:999px;border:1px solid rgba(140,197,118,.4);background:rgba(5,15,23,.95);padding:7px 12px;font-size:13px;color:var(--text);outline:none;}
+    .search-input:focus{border-color:var(--c3);}
+
+    .events-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:10px;}
+    .event-card{background:rgba(15,37,53,.55);border:1px solid var(--border);border-radius:16px;overflow:hidden;backdrop-filter:blur(20px);transition:transform .25s,border-color .25s,box-shadow .25s;text-decoration:none;color:inherit;display:block;}
+    .event-card:hover{transform:translateY(-3px);border-color:var(--border-hi);box-shadow:0 12px 36px rgba(0,0,0,.4),0 0 20px rgba(140,197,118,.06);}
+    .event-thumb{height:140px;background:linear-gradient(135deg,var(--c5),var(--c2));position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+    .event-thumb::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(14,26,38,.7));}
+    .event-thumb svg{opacity:.3;}
+    .event-badge{position:absolute;top:12px;left:12px;z-index:2;background:rgba(140,197,118,.2);border:1px solid rgba(140,197,118,.35);backdrop-filter:blur(8px);border-radius:6px;padding:3px 10px;font-size:10.5px;font-weight:700;color:var(--c3);letter-spacing:.06em;text-transform:uppercase;}
+    .event-body{padding:18px 18px 16px;}
+    .event-date{font-size:11.5px;color:var(--c3);font-weight:600;margin-bottom:6px;letter-spacing:.04em;}
+    .event-title{font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px;line-height:1.25;}
+    .event-desc{font-size:13px;color:var(--muted);line-height:1.6;font-weight:300;}
+    .event-meta{margin-top:10px;font-size:11px;color:rgba(106,154,126,.7);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+
+    .msg{font-size:12px;padding:8px 10px;border-radius:9px;border:1px solid transparent;margin-top:12px;margin-bottom:4px;display:none;}
+
+    footer{border-top:1px solid var(--border);background:rgba(14,26,38,.8);backdrop-filter:blur(20px);padding:32px 40px 28px;margin-top:32px;position:relative;z-index:1;}
+    .footer-inner{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+    .footer-copy{font-size:12px;color:rgba(106,154,126,.6);}
+    .footer-socials{display:flex;gap:10px;}
+    .social-btn{width:34px;height:34px;background:rgba(15,37,53,.7);border:1px solid var(--border);border-radius:8px;display:grid;place-items:center;color:var(--muted);text-decoration:none;transition:background .2s,color .2s,border-color .2s;}
+    .social-btn:hover{background:rgba(140,197,118,.12);color:var(--c3);border-color:var(--border-hi);}
+
+    @media(max-width:900px){
+      nav{padding:0 18px;}
+      .page-shell{padding:80px 18px 32px;}
+      .events-grid{grid-template-columns:1fr 1fr;}
+    }
+    @media(max-width:640px){
+      .events-grid{grid-template-columns:1fr;}
+      .filters{flex-direction:column;}
+    }
+    ::-webkit-scrollbar{width:6px;}
+    ::-webkit-scrollbar-track{background:var(--c4);}
+    ::-webkit-scrollbar-thumb{background:var(--c5);border-radius:3px;}
+    ::-webkit-scrollbar-thumb:hover{background:var(--c2);}
+  
+    footer {
+      border-top: 1px solid var(--border);
+      background: rgba(14, 26, 38, 0.8);
+      backdrop-filter: blur(20px);
+      padding: 60px 40px 40px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+
+    .footer-logo {
+      font-family: var(--font-head);
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .footer-logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      margin-bottom: 14px;
+    }
+
+    .footer-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.7;
+      font-weight: 300;
+      max-width: 260px;
+    }
+
+    .footer-col-title {
+      font-family: var(--font-head);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(140, 197, 118, 0.6);
+      margin-bottom: 16px;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .footer-links a {
+      font-size: 13.5px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: var(--text);
+    }
+
+    .footer-bottom {
+      padding-top: 28px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .footer-copy {
+      font-size: 12px;
+      color: rgba(106, 154, 126, 0.6);
+    }
+
+    .footer-socials {
+      display: flex;
+      gap: 10px;
+    }
+
+    .social-btn {
+      width: 34px;
+      height: 34px;
+      background: rgba(15, 37, 53, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+
+    .social-btn:hover {
+      background: rgba(140, 197, 118, 0.12);
+      color: var(--c3);
+      border-color: var(--border-hi);
+    }
+
+    @media (max-width: 900px) {
+      nav { padding: 0 18px; }
+      .hero { padding: 96px 18px 56px; }
+      section { padding: 72px 18px; }
+      .stats-bar { grid-template-columns: repeat(2, 1fr); }
+      .steps-grid { grid-template-columns: 1fr; }
+      .about-grid { grid-template-columns: 1fr; gap: 32px; }
+      .airports-grid { grid-template-columns: repeat(2, 1fr); }
+      .events-grid { grid-template-columns: 1fr; }
+      .news-grid { grid-template-columns: 1fr; }
+      .atc-section { grid-template-columns: 1fr; }
+      .community-cards { grid-template-columns: 1fr; }
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .footer-inner { grid-template-columns: 1fr; }
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--c4); }
+    ::-webkit-scrollbar-thumb { background: var(--c5); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--c2); }
+  
+  
+  </style>
+</head>
+<body>
+  <div class="bg-canvas">
+    <div class="bg-orb orb1"></div>
+    <div class="bg-orb orb2"></div>
+    <div class="bg-orb orb3"></div>
+  </div>
+
+  <svg class="radar-bg" width="900" height="900" viewBox="0 0 900 900">
+    <circle cx="450" cy="450" r="100"></circle>
+    <circle cx="450" cy="450" r="200"></circle>
+    <circle cx="450" cy="450" r="300"></circle>
+    <circle cx="450" cy="450" r="400"></circle>
+    <line x1="450" y1="150" x2="450" y2="750"></line>
+    <line x1="150" y1="450" x2="750" y2="450"></line>
+  </svg>
+
+  <nav>
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-badge"><img src="icon-512.png" alt="" width="36"></div>
+      <div>
+        <div class="nav-logo-text">SkyHigh Network</div>
+        <div class="nav-logo-sub">Event Calendar</div>
+      </div>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="events.html" class="active">Events</a></li>
+      <li><a href="index.html#atc">ATC Training</a></li>
+      <li><a href="index.html#airports">Airports</a></li>
+      <li><a href="index.html#community">Community</a></li>
+    </ul>
+
+    <a href="join.html" class="nav-cta">Join</a>
+
+    <div class="nav-profile">
+      <button class="profile-btn" id="profile-button" aria-haspopup="true" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="8" r="4"></circle>
+          <path d="M4 20c0-3.3 2.7-6 6-6h4c3.3 0 6 2.7 6 6"></path>
+        </svg>
+      </button>
+      <div class="profile-menu" id="profile-menu" hidden>
+        <div class="profile-menu-header" id="profile-name">Not signed in</div>
+        <button type="button" class="profile-menu-item" id="profile-link" hidden>Profile</button>
+        <button type="button" class="profile-menu-item" id="staff-dashboard-link" hidden>Staff dashboard</button>
+        <button type="button" class="profile-menu-item" id="login-link">Log in</button>
+        <button type="button" class="profile-menu-item" id="logout-link" hidden>Log out</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page-shell">
+    <header>
+      <div class="page-eyebrow">Network events</div>
+      <h1 class="page-title">Events &amp; Operations</h1>
+      <p class="page-subtitle">
+        Browse all scheduled events across SkyHigh – from high‑intensity crossfires and RFEs to training nights and rookie sessions.
+      </p>
+    </header>
+
+    <section class="filters">
+      <button class="filter-pill active" data-type="all">
+        All types <span>(default)</span>
+      </button>
+      <button class="filter-pill" data-type="crossfire">Crossfire</button>
+      <button class="filter-pill" data-type="rfe">RFE</button>
+      <button class="filter-pill" data-type="training">Training</button>
+      <button class="filter-pill" data-type="other">Other</button>
+      <input type="text" id="search-input" class="search-input" placeholder="Search by title, description, date, region">
+    </section>
+
+    <div id="events-msg" class="msg"></div>
+
+    <section class="events-grid" id="events-grid">
+      <!-- Filled by Firestore -->
+    </section>
+  </main>
+
+<!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div>
+        <a href="index.html" class="footer-logo-badge">
+          <div class="nav-logo-badge"><img src="icon-512.png" width="36" alt=""></div>
+          <div>
+            <div class="footer-logo">SkyHigh Network</div>
+            <div style="font-size:11px;color:var(--muted);">The Best Virtual Aviation Network</div>
+          </div>
+        </a>
+        <p class="footer-desc">
+          The SkyHigh Network is a free, friendly network offering as‑real‑as‑it‑gets virtual aviation for pilots and controllers of all skill levels.
+        </p>
+      </div>
+
+      <div>
+        <div class="footer-col-title">Network</div>
+        <ul class="footer-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="events.html">Events</a></li>
+          <li><a href="#atc">ATC Training</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="footer-col-title">Community</div>
+        <ul class="footer-links">
+          <li><a href="https://discord.gg/eSdUKmmQB4" target="_blank">Discord</a></li>
+          <li><a href="#">Twitter / X</a></li>
+          <li><a href="#">YouTube</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="footer-col-title">Legal</div>
+        <ul class="footer-links">
+          <li><a href="UserAgreement.html">User Agreement</a></li>
+          <li><a href="CodeofRegulations.html">Code of Regulations</a></li>
+          <li><a href="conduct.html">Code of Conduct</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 SkyHigh Network Organisation</div>
+      <div class="footer-socials">
+        <a href="https://discord.gg/eSdUKmmQB4" class="social-btn" title="Discord">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515A13.2 13.2 0 0 0 12 3c-.982 0-1.955.11-2.912.327A19.79 19.79 0 0 0 4.203 4.37C2.76 6.69 2.026 9.21 2 11.77c.003 0 .006 0 .01.002A9.9 9.9 0 0 0 5.18 14.1a7.2 7.2 0 0 1 1.41-2.305 4.1 4.1 0 0 1-1.82-2.26 7.2 7.2 0 0 0 2.27 1.01 4.1 4.1 0 0 1 6.88 0 7.2 7.2 0 0 0 2.27-1.01 4.1 4.1 0 0 1-1.82 2.26 7.2 7.2 0 0 1 1.41 2.305 9.9 9.9 0 0 0 3.17-2.33c.004 0 .007 0 .01-.002-.03-2.56-.76-5.08-2.203-7.4z"></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SHARED NAV/AUTH -->
+  <script type="module">
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAdvM-qqfy5XXPNom8bRvVt4LXSG8818fw",
+      authDomain: "skyhigh-55704.firebaseapp.com",
+      projectId: "skyhigh-55704",
+      storageBucket: "skyhigh-55704.firebasestorage.app",
+      messagingSenderId: "1067950745554",
+      appId: "1:1067950745554:web:483ed877b0ea4085da8a0b",
+      measurementId: "G-1SJCXQPEQJ",
+    };
+
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const profileButton = document.getElementById("profile-button");
+    const profileMenu = document.getElementById("profile-menu");
+    const profileName = document.getElementById("profile-name");
+    const profileLink = document.getElementById("profile-link");
+    const loginLink = document.getElementById("login-link");
+    const logoutLink = document.getElementById("logout-link");
+    const staffDashLink = document.getElementById("staff-dashboard-link");
+
+    function toggleMenu() {
+      if (!profileMenu) return;
+      const isHidden = profileMenu.hasAttribute("hidden");
+      if (isHidden) {
+        profileMenu.removeAttribute("hidden");
+        profileButton?.setAttribute("aria-expanded", "true");
+      } else {
+        profileMenu.setAttribute("hidden", "");
+        profileButton?.setAttribute("aria-expanded", "false");
+      }
+    }
+
+    function closeMenuOnOutsideClick(e) {
+      if (!profileMenu || !profileButton) return;
+      if (!profileMenu.contains(e.target) && !profileButton.contains(e.target)) {
+        profileMenu.setAttribute("hidden", "");
+        profileButton.setAttribute("aria-expanded", "false");
+      }
+    }
+
+    if (profileButton) {
+      profileButton.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleMenu();
+      });
+      document.addEventListener("click", closeMenuOnOutsideClick);
+    }
+
+    if (loginLink) {
+      loginLink.addEventListener("click", () => {
+        window.location.href = "login.html";
+      });
+    }
+
+    if (profileLink) {
+      profileLink.addEventListener("click", () => {
+        window.location.href = "profile.html";
+      });
+    }
+
+    if (staffDashLink) {
+      staffDashLink.addEventListener("click", () => {
+        window.location.href = "staff-dashboard.html";
+      });
+    }
+
+    if (logoutLink) {
+      logoutLink.addEventListener("click", async () => {
+        try {
+          await signOut(auth);
+          window.location.href = "index.html";
+        } catch (err) {
+          console.error("Failed to sign out", err);
+        }
+      });
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        if (loginLink) loginLink.hidden = false;
+        if (logoutLink) logoutLink.hidden = true;
+        if (profileLink) profileLink.hidden = true;
+        if (staffDashLink) staffDashLink.hidden = true;
+        if (profileName) profileName.textContent = "Not signed in";
+        return;
+      }
+
+      const display = user.displayName || user.email || "Signed in";
+      if (profileName) profileName.textContent = display;
+      if (profileLink) profileLink.hidden = false;
+      if (loginLink) loginLink.hidden = true;
+      if (logoutLink) logoutLink.hidden = false;
+
+      try {
+        const userRef = doc(db, "joinApplications", user.uid);
+        const snap = await getDoc(userRef);
+        const data = snap.exists() ? snap.data() : {};
+        const isStaff = !!data.hqStaff;
+        if (staffDashLink) staffDashLink.hidden = !isStaff;
+      } catch (err) {
+        console.error("Failed to load user doc", err);
+        if (staffDashLink) staffDashLink.hidden = true;
+      }
+    });
+  </script>
+
+  <!-- EVENTS PAGE LOGIC -->
+  <script type="module">
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+    import { getFirestore, collection, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAdvM-qqfy5XXPNom8bRvVt4LXSG8818fw",
+      authDomain: "skyhigh-55704.firebaseapp.com",
+      projectId: "skyhigh-55704",
+      storageBucket: "skyhigh-55704.firebasestorage.app",
+      messagingSenderId: "1067950745554",
+      appId: "1:1067950745554:web:483ed877b0ea4085da8a0b",
+      measurementId: "G-1SJCXQPEQJ",
+    };
+
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const eventsGrid = document.getElementById("events-grid");
+    const eventsMsg = document.getElementById("events-msg");
+    const filterPills = document.querySelectorAll(".filter-pill");
+    const searchInput = document.getElementById("search-input");
+
+    let allEvents = [];
+
+    function setMsg(text, kind = "info") {
+      if (!eventsMsg) return;
+      if (!text) {
+        eventsMsg.style.display = "none";
+        eventsMsg.textContent = "";
+        eventsMsg.style.borderColor = "transparent";
+        eventsMsg.style.background = "transparent";
+        eventsMsg.style.color = "";
+        return;
+      }
+      eventsMsg.style.display = "block";
+      eventsMsg.textContent = text;
+      if (kind === "error") {
+        eventsMsg.style.borderColor = "rgba(255,110,110,0.4)";
+        eventsMsg.style.background = "rgba(220,68,68,0.15)";
+        eventsMsg.style.color = "#ffb3b3";
+      } else {
+        eventsMsg.style.borderColor = "rgba(140,197,118,0.4)";
+        eventsMsg.style.background = "rgba(140,197,118,0.15)";
+        eventsMsg.style.color = "#e3f8dd";
+      }
+    }
+
+    function renderEvents(list) {
+      eventsGrid.innerHTML = "";
+      if (!list.length) {
+        eventsGrid.innerHTML = `
+          <div style="grid-column:1/-1;font-size:13px;color:var(--muted);">
+            No events match the current filters.
+          </div>
+        `;
+        return;
+      }
+
+      list.forEach((ev) => {
+        const card = document.createElement("article");
+        card.className = "event-card";
+
+        const type = ev.type || "Event";
+        const dateTime = ev.dateTime || "";
+        const title = ev.title || "Untitled event";
+        const desc = ev.description || "";
+        const banner = ev.bannerUrl || "";
+
+        let gradient = "linear-gradient(135deg, var(--c5), var(--c2))";
+        const lowerType = type.toLowerCase();
+        if (lowerType.includes("rfe")) gradient = "linear-gradient(135deg,#193247 0,#0f2535 100%)";
+        else if (lowerType.includes("train")) gradient = "linear-gradient(135deg,#25562d 0,#0f2535 100%)";
+
+        const bgStyle = banner
+          ? `background: center/cover no-repeat url('${banner.replace(/"/g, "&quot;")}');`
+          : `background: ${gradient};`;
+
+        card.innerHTML = `
+          <div class="event-thumb" style="${bgStyle}">
+            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#8cc576" stroke-width="0.8">
+              <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+            <span class="event-badge">${type}</span>
+          </div>
+          <div class="event-body">
+            <div class="event-date">${dateTime}</div>
+            <div class="event-title">${title}</div>
+            <div class="event-desc">${desc}</div>
+            <div class="event-meta">
+              <span>${ev.region || "Global network"}</span>
+              <span>${ev.createdAt ? "Created " + new Date(ev.createdAt).toLocaleDateString() : ""}</span>
+            </div>
+          </div>
+        `;
+        eventsGrid.appendChild(card);
+      });
+    }
+
+    function applyFilters() {
+      const activePill = document.querySelector(".filter-pill.active");
+      const typeFilter = activePill ? activePill.dataset.type : "all";
+      const q = (searchInput?.value || "").trim().toLowerCase();
+
+      let filtered = [...allEvents];
+
+      if (typeFilter && typeFilter !== "all") {
+        filtered = filtered.filter((ev) => {
+          const t = (ev.type || "").toLowerCase();
+          if (typeFilter === "crossfire") return t.includes("crossfire");
+          if (typeFilter === "rfe") return t.includes("rfe");
+          if (typeFilter === "training") return t.includes("train");
+          if (typeFilter === "other") return !t.includes("crossfire") && !t.includes("rfe") && !t.includes("train");
+          return true;
+        });
+      }
+
+      if (q) {
+        filtered = filtered.filter((ev) => {
+          const haystack = [
+            ev.title || "",
+            ev.description || "",
+            ev.dateTime || "",
+            ev.region || "",
+            ev.type || "",
+          ].join(" ").toLowerCase();
+          return haystack.includes(q);
+        });
+      }
+
+      renderEvents(filtered);
+    }
+
+    filterPills.forEach((pill) => {
+      pill.addEventListener("click", () => {
+        filterPills.forEach((p) => p.classList.remove("active"));
+        pill.classList.add("active");
+        applyFilters();
+      });
+    });
+
+    if (searchInput) {
+      searchInput.addEventListener("input", () => {
+        applyFilters();
+      });
+    }
+
+    async function loadEvents() {
+      setMsg("Loading events…", "info");
+      eventsGrid.innerHTML = "";
+      allEvents = [];
+      try {
+        const qRef = query(collection(db, "Events"), orderBy("dateTime", "asc"));
+        const snap = await getDocs(qRef);
+        snap.forEach((docSnap) => {
+          allEvents.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        setMsg("", "info");
+        applyFilters();
+      } catch (err) {
+        console.error("Failed to load events", err);
+        setMsg("Could not load events. Please try again later.", "error");
+      }
+    }
+
+    loadEvents();
+  </script>
+</body>
+</html>
