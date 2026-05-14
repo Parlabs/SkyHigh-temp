@@ -676,8 +676,7 @@
       border-top: 1px solid var(--border);
       background: rgba(14, 26, 38, 0.8);
       backdrop-filter: blur(20px);
-      padding: 32px 40px 28px;
-      margin-top: 32px;
+      padding: 60px 40px 40px;
       position: relative;
       z-index: 1;
     }
@@ -685,11 +684,72 @@
     .footer-inner {
       max-width: 1200px;
       margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+
+    .footer-logo {
+      font-family: var(--font-head);
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .footer-logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      margin-bottom: 14px;
+    }
+
+    .footer-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.7;
+      font-weight: 300;
+      max-width: 260px;
+    }
+
+    .footer-col-title {
+      font-family: var(--font-head);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(140, 197, 118, 0.6);
+      margin-bottom: 16px;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .footer-links a {
+      font-size: 13.5px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: var(--text);
+    }
+
+    .footer-bottom {
+      padding-top: 28px;
+      border-top: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
       flex-wrap: wrap;
+      gap: 12px;
     }
 
     .footer-copy {
@@ -721,20 +781,29 @@
       border-color: var(--border-hi);
     }
 
-    /* Scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
+    @media (max-width: 900px) {
+      nav { padding: 0 18px; }
+      .hero { padding: 96px 18px 56px; }
+      section { padding: 72px 18px; }
+      .stats-bar { grid-template-columns: repeat(2, 1fr); }
+      .steps-grid { grid-template-columns: 1fr; }
+      .about-grid { grid-template-columns: 1fr; gap: 32px; }
+      .airports-grid { grid-template-columns: repeat(2, 1fr); }
+      .events-grid { grid-template-columns: 1fr; }
+      .news-grid { grid-template-columns: 1fr; }
+      .atc-section { grid-template-columns: 1fr; }
+      .community-cards { grid-template-columns: 1fr; }
+      .footer-inner { grid-template-columns: 1fr 1fr; }
     }
-    ::-webkit-scrollbar-track {
-      background: var(--c4);
+
+    @media (max-width: 640px) {
+      .footer-inner { grid-template-columns: 1fr; }
     }
-    ::-webkit-scrollbar-thumb {
-      background: var(--c5);
-      border-radius: 3px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: var(--c2);
-    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--c4); }
+    ::-webkit-scrollbar-thumb { background: var(--c5); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--c2); }
   </style>
 </head>
 <body>
