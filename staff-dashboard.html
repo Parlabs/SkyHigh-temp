@@ -735,140 +735,6 @@
     ::-webkit-scrollbar-thumb:hover {
       background: var(--c2);
     }
-
-
-    footer {
-      border-top: 1px solid var(--border);
-      background: rgba(14, 26, 38, 0.8);
-      backdrop-filter: blur(20px);
-      padding: 60px 40px 40px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .footer-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1fr;
-      gap: 48px;
-      margin-bottom: 48px;
-    }
-
-    .footer-logo {
-      font-family: var(--font-head);
-      font-size: 22px;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 12px;
-    }
-
-    .footer-logo-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      margin-bottom: 14px;
-    }
-
-    .footer-desc {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.7;
-      font-weight: 300;
-      max-width: 260px;
-    }
-
-    .footer-col-title {
-      font-family: var(--font-head);
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: rgba(140, 197, 118, 0.6);
-      margin-bottom: 16px;
-    }
-
-    .footer-links {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .footer-links a {
-      font-size: 13.5px;
-      color: var(--muted);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    .footer-links a:hover {
-      color: var(--text);
-    }
-
-    .footer-bottom {
-      padding-top: 28px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .footer-copy {
-      font-size: 12px;
-      color: rgba(106, 154, 126, 0.6);
-    }
-
-    .footer-socials {
-      display: flex;
-      gap: 10px;
-    }
-
-    .social-btn {
-      width: 34px;
-      height: 34px;
-      background: rgba(15, 37, 53, 0.7);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      display: grid;
-      place-items: center;
-      color: var(--muted);
-      text-decoration: none;
-      transition: background 0.2s, color 0.2s, border-color 0.2s;
-    }
-
-    .social-btn:hover {
-      background: rgba(140, 197, 118, 0.12);
-      color: var(--c3);
-      border-color: var(--border-hi);
-    }
-
-    @media (max-width: 900px) {
-      nav { padding: 0 18px; }
-      .hero { padding: 96px 18px 56px; }
-      section { padding: 72px 18px; }
-      .stats-bar { grid-template-columns: repeat(2, 1fr); }
-      .steps-grid { grid-template-columns: 1fr; }
-      .about-grid { grid-template-columns: 1fr; gap: 32px; }
-      .airports-grid { grid-template-columns: repeat(2, 1fr); }
-      .events-grid { grid-template-columns: 1fr; }
-      .news-grid { grid-template-columns: 1fr; }
-      .atc-section { grid-template-columns: 1fr; }
-      .community-cards { grid-template-columns: 1fr; }
-      .footer-inner { grid-template-columns: 1fr 1fr; }
-    }
-
-    @media (max-width: 640px) {
-      .footer-inner { grid-template-columns: 1fr; }
-    }
-
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: var(--c4); }
-    ::-webkit-scrollbar-thumb { background: var(--c5); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--c2); }
   </style>
 </head>
 <body>
@@ -996,7 +862,7 @@
           <div>
             <div class="card-title">Members</div>
             <div class="card-sub">
-              View and edit ATC rating, pilot rating, region, and staff flag for all users.
+              View and edit ATC rating, pilot rating, region, division, and staff flag for all users.
             </div>
           </div>
           <span class="pill badge-red" id="staff-pill">Checking access</span>
@@ -1006,7 +872,7 @@
 
         <div class="users-header">
           <div class="search-box">
-            <input id="user-search" placeholder="Search by name, email, UID, region">
+            <input id="user-search" placeholder="Search by name, email, UID, region, division">
           </div>
           <button type="button" class="btn btn-ghost btn-sm" id="reload-users-btn">Reload</button>
         </div>
@@ -1019,6 +885,7 @@
                 <th>ATC rating</th>
                 <th>Pilot rating</th>
                 <th>Region</th>
+                <th>Division</th>
                 <th>HQ staff</th>
                 <th>Save</th>
               </tr>
@@ -1136,7 +1003,6 @@
     const eventIdInput = document.getElementById("event-id");
     const eventSubmitBtn = document.getElementById("event-submit-btn");
     const eventResetBtn = document.getElementById("event-reset-btn");
-
     const usersMsg = document.getElementById("users-msg");
     const usersTbody = document.getElementById("users-tbody");
     const userSearchInput = document.getElementById("user-search");
@@ -1155,6 +1021,67 @@
       el.textContent = text;
       el.className = "msg " + type;
       el.style.display = "block";
+    }
+
+    // Region/division mapping (same as join page)
+    const regions = [
+      { value: "", label: "Choose..." },
+      { value: "AMAS", label: "Americas" },
+      { value: "APAC", label: "Asia Pacific" },
+      { value: "EMEA", label: "Europe, Middle East and Africa" }
+    ];
+
+    const divisions = {
+      AMAS: [
+        { value: 'SHBR', label: 'SkyHigh Brazil (BR)' },
+        { value: 'SHCA', label: 'SkyHigh Canada (CA)' },
+        { value: 'SHCB', label: 'SkyHigh Caribbean (CB)' },
+        { value: 'SHCM', label: 'SkyHigh Central America (CM)' },
+        { value: 'SHMX', label: 'SkyHigh Mexico (MX)' },
+        { value: 'SHSA', label: 'SkyHigh South America (SA)' },
+        { value: 'SHUS', label: 'SkyHigh United States (US)' }
+      ],
+      APAC: [
+        { value: 'SHAP', label: 'SkyHigh Australia Pacific (AP)' },
+        { value: 'SHJP', label: 'SkyHigh Japan (JP)' },
+        { value: 'SHKR', label: 'SkyHigh Korea (KR)' },
+        { value: 'SHNZ', label: 'SkyHigh New Zealand (NZ)' },
+        { value: 'SHCN', label: 'SkyHigh China (CN)' },
+        { value: 'SHTW', label: 'SkyHigh Taiwan (TW)' },
+        { value: 'SHSE', label: 'SkyHigh South East Asia (SE)' },
+        { value: 'SHWA', label: 'SkyHigh West Asia (WA)' }
+      ],
+      EMEA: [
+        { value: 'SHEU', label: 'SkyHigh Europe (Except UK)' },
+        { value: 'SHIL', label: 'SkyHigh Israel (IL)' },
+        { value: 'SHMN', label: 'SkyHigh Middle East & North Africa (MN)' },
+        { value: 'SHRU', label: 'SkyHigh Russia (RU)' },
+        { value: 'SHAF', label: 'SkyHigh Sub-Sahara Africa (AF)' },
+        { value: 'SHUK', label: 'SkyHigh UK (UK)' }
+      ]
+    };
+
+    function updateDivisionSelect(selectEl, regionValue) {
+      selectEl.innerHTML = '<option value="">Choose...</option>';
+      if (divisions[regionValue]) {
+        divisions[regionValue].forEach(item => {
+          const opt = document.createElement('option');
+          opt.value = item.value;
+          opt.textContent = item.label;
+          selectEl.appendChild(opt);
+        });
+      }
+    }
+
+    function setupRegionListeners(row) {
+      const regionSelect = row.querySelector('select[name="region"]');
+      const divisionSelect = row.querySelector('select[name="division"]');
+      if (regionSelect && divisionSelect) {
+        regionSelect.addEventListener('change', () => {
+          updateDivisionSelect(divisionSelect, regionSelect.value);
+          divisionSelect.value = '';
+        });
+      }
     }
 
     // Basic profile dropdown
@@ -1300,7 +1227,6 @@
           `;
           eventsList.appendChild(row);
         });
-
         setMsg(eventsMsg, "", "");
       } catch (err) {
         console.error("Failed to load events", err);
@@ -1431,7 +1357,7 @@
       if (!list.length) {
         usersTbody.innerHTML = `
           <tr>
-            <td colspan="6" class="muted">No users found.</td>
+            <td colspan="7" class="muted">No users found.</td>
           </tr>
         `;
         return;
@@ -1443,6 +1369,7 @@
         const displayName = user.displayName || user.fullName || "No name";
         const email = user.email || "";
         const region = user.region || "";
+        const division = user.division || "";
         const atcRating = user.atcRating || "";
         const pilotRating = user.pilotRating || "";
         const hqStaffFlag = !!user.hqStaff;
@@ -1454,7 +1381,16 @@
           </td>
           <td><input type="text" name="atcRating" value="${atcRating}"></td>
           <td><input type="text" name="pilotRating" value="${pilotRating}"></td>
-          <td><input type="text" name="region" value="${region}"></td>
+          <td>
+            <select name="region">
+              ${regions.map(r =>
+                `<option value="${r.value}" ${r.value === region ? 'selected' : ''}>${r.label}</option>`
+              ).join('')}
+            </select>
+          </td>
+          <td>
+            <select name="division"></select>
+          </td>
           <td class="checkbox-cell">
             <input type="checkbox" name="hqStaff" ${hqStaffFlag ? "checked" : ""}>
           </td>
@@ -1463,6 +1399,13 @@
           </td>
         `;
         usersTbody.appendChild(tr);
+
+        setupRegionListeners(tr);
+        const divisionSelect = tr.querySelector('select[name="division"]');
+        if (region) {
+          updateDivisionSelect(divisionSelect, region);
+          if (division) divisionSelect.value = division;
+        }
       });
     }
 
@@ -1479,6 +1422,7 @@
             u.fullName || "",
             u.email || "",
             u.region || "",
+            u.division || "",
             u.atcRating || "",
             u.pilotRating || "",
             u.id || "",
@@ -1505,13 +1449,15 @@
 
         const atcInput = row.querySelector('input[name="atcRating"]');
         const pilotInput = row.querySelector('input[name="pilotRating"]');
-        const regionInput = row.querySelector('input[name="region"]');
+        const regionSelect = row.querySelector('select[name="region"]');
+        const divisionSelect = row.querySelector('select[name="division"]');
         const hqCheckbox = row.querySelector('input[name="hqStaff"]');
 
         const payload = {
           atcRating: atcInput.value.trim(),
           pilotRating: pilotInput.value.trim(),
-          region: regionInput.value.trim(),
+          region: regionSelect.value,
+          division: divisionSelect.value,
           hqStaff: hqCheckbox.checked,
         };
 
