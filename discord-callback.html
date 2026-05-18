@@ -33,24 +33,6 @@ body{font-family:var(--font-body);background:var(--c4);color:var(--text);min-hei
 </div>
 
 <script type="module">
-/*
-  discord-callback.html
-  ---------------------
-  This page is opened by your backend after the OAuth callback succeeds.
-  Your backend should redirect here with:
-    ?status=ok&uid=FIREBASE_UID&discordUsername=Luca&discordId=123
-  OR on error:
-    ?status=error&message=Something+went+wrong
-
-  It simply reads those params, writes them into joinApplications/{uid} in
-  Firestore, and shows a success or error state to the user.
-
-  NOTE: The actual OAuth code exchange (code → token → user) must happen
-  on your backend (Node server or Firebase Function) — NEVER here.
-  This page only handles the final Firestore write using the data
-  your backend already verified and passes in the URL.
-*/
-
 import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js';
 import { getFirestore, doc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js';
@@ -84,27 +66,32 @@ function showError(text) {
   doneBtn.style.display = 'inline-block';
 }
 
-function showSuccess(username) {
+function showSuccess(displayName) {
   if (spinnerEl) spinnerEl.style.display = 'none';
   statusEl.textContent  = 'Discord linked!';
   subEl.textContent     = 'Your SkyHigh member role will be applied shortly.';
-  msgEl.textContent     = 'Linked as ' + username + '. Head back to your profile to check your status.';
+  msgEl.textContent     = 'Linked as ' + displayName + '. Head back to your profile to check your status.';
   msgEl.className       = 'msg success show';
   doneBtn.style.display = 'inline-block';
 }
 
-const params          = new URLSearchParams(window.location.search);
-const status          = params.get('status');
-const discordUsername = params.get('discordUsername') || params.get('username');
-const discordId       = params.get('discordId')       || params.get('id');
-const discordAvatar   = params.get('discordAvatar')   || params.get('avatar') || null;
-const errorMsg        = params.get('message');
-const passedUid       = params.get('uid');
+// Parse URL parameters from Cloudflare Worker redirect
+const params = new URLSearchParams(window.location.search);
+const status = params.get('status');
+const errorMsg = params.get('message');
+const passedUid = params.get('uid');
+
+// Discord data from worker (already URL-decoded by browser)
+const discordId = params.get('discordId');
+const discordUsername = params.get('discordUsername');
+const discordDisplay = params.get('discordDisplay');
+const discordAvatar = params.get('discordAvatar');
+const roleSynced = params.get('roleSynced') === '1';
 
 if (status === 'error' || errorMsg) {
   showError(errorMsg || 'Discord OAuth failed. Please try again.');
 } else if (status === 'ok' && discordId && discordUsername) {
-  // Wait for Firebase auth, then write the Discord data into joinApplications/{uid}
+  // Wait for Firebase auth, then write Discord data to Firestore
   onAuthStateChanged(auth, async user => {
     const uid = user?.uid || passedUid;
     if (!uid) {
@@ -114,14 +101,16 @@ if (status === 'error' || errorMsg) {
     try {
       const ref = doc(db, 'joinApplications', uid);
       await updateDoc(ref, {
-        discordLinked:    true,
-        discordUserId:    discordId,
-        discordUsername:  discordUsername,
-        discordAvatar:    discordAvatar,
-        discordRoleSynced: false,  // backend will flip this to true after role is applied
-        discordLinkedAt:  serverTimestamp()
+        discordLinked: true,
+        discordUserId: discordId,
+        discordUsername: discordUsername,
+        discordDisplayName: discordDisplay || discordUsername,
+        discordAvatar: discordAvatar || null,
+        discordRoleSynced: roleSynced,
+        discordLinkedAt: serverTimestamp()
       });
-      showSuccess(discordUsername);
+      // Show the display name (preferred) or username as fallback
+      showSuccess(discordDisplay || discordUsername);
     } catch(err) {
       console.error('Firestore write failed', err);
       showError('Account found but failed to save Discord link: ' + err.message);
