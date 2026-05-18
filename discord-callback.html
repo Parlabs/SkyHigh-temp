@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkyHigh – Linking Discord…</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--c3:#8cc576;--c4:#0e1a26;--text:#d0e8d8;--muted:#6a9a7e;--font-head:'Plus Jakarta Sans',sans-serif;--font-body:'Lexend',sans-serif}
+body{font-family:var(--font-body);background:var(--c4);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.card{max-width:480px;width:100%;background:rgba(15,37,53,0.72);border:1px solid rgba(140,197,118,0.28);border-radius:24px;padding:36px 32px;text-align:center;backdrop-filter:blur(28px);box-shadow:0 20px 70px rgba(0,0,0,0.75)}
+.logo{font-family:var(--font-head);font-size:22px;font-weight:800;margin-bottom:28px;color:var(--text)}
+.spinner{width:44px;height:44px;border:3px solid rgba(140,197,118,0.2);border-top-color:var(--c3);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.status{font-size:15px;color:var(--text);margin-bottom:8px;font-weight:500}
+.sub{font-size:13px;color:var(--muted)}
+.msg{margin-top:18px;font-size:13px;padding:10px 12px;border-radius:10px;border:1px solid transparent;display:none}
+.msg.show{display:block}
+.msg.success{border-color:rgba(88,101,242,0.5);background:rgba(88,101,242,0.12);color:#c5caff}
+.msg.error{border-color:rgba(255,110,110,0.4);background:rgba(220,68,68,0.15);color:#ffb3b3}
+.btn{display:inline-block;margin-top:18px;padding:10px 26px;background:linear-gradient(135deg,#8cc576,#3d8a35);color:#0e1a26;font-weight:700;border-radius:9px;text-decoration:none;font-size:14px;font-family:var(--font-body)}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">SkyHigh Network</div>
+  <div class="spinner" id="spinner"></div>
+  <div class="status" id="status">Linking your Discord account…</div>
+  <div class="sub" id="sub">Please wait, this only takes a moment.</div>
+  <div class="msg" id="msg"></div>
+  <a href="profile.html" class="btn" id="done-btn" style="display:none">Go to my profile</a>
+</div>
+
+<script type="module">
+/*
+  discord-callback.html
+  ---------------------
+  This page is opened by your backend after the OAuth callback succeeds.
+  Your backend should redirect here with:
+    ?status=ok&uid=FIREBASE_UID&discordUsername=Luca&discordId=123
+  OR on error:
+    ?status=error&message=Something+went+wrong
+
+  It simply reads those params, writes them into joinApplications/{uid} in
+  Firestore, and shows a success or error state to the user.
+
+  NOTE: The actual OAuth code exchange (code → token → user) must happen
+  on your backend (Node server or Firebase Function) — NEVER here.
+  This page only handles the final Firestore write using the data
+  your backend already verified and passes in the URL.
+*/
+
+import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js';
+import { getFirestore, doc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: 'AIzaSyAdvM-qqfy5XXPNom8bRvVt4LXSG8818fw',
+  authDomain: 'skyhigh-55704.firebaseapp.com',
+  projectId: 'skyhigh-55704',
+  storageBucket: 'skyhigh-55704.firebasestorage.app',
+  messagingSenderId: '1067950745554',
+  appId: '1:1067950745554:web:483ed877b0ea4085da8a0b',
+  measurementId: 'G-1SJCXQPEQJ'
+};
+
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const statusEl  = document.getElementById('status');
+const subEl     = document.getElementById('sub');
+const spinnerEl = document.getElementById('spinner');
+const msgEl     = document.getElementById('msg');
+const doneBtn   = document.getElementById('done-btn');
+
+function showError(text) {
+  if (spinnerEl) spinnerEl.style.display = 'none';
+  statusEl.textContent  = 'Something went wrong';
+  subEl.textContent     = '';
+  msgEl.textContent     = text;
+  msgEl.className       = 'msg error show';
+  doneBtn.style.display = 'inline-block';
+}
+
+function showSuccess(username) {
+  if (spinnerEl) spinnerEl.style.display = 'none';
+  statusEl.textContent  = 'Discord linked!';
+  subEl.textContent     = 'Your SkyHigh member role will be applied shortly.';
+  msgEl.textContent     = 'Linked as ' + username + '. Head back to your profile to check your status.';
+  msgEl.className       = 'msg success show';
+  doneBtn.style.display = 'inline-block';
+}
+
+const params          = new URLSearchParams(window.location.search);
+const status          = params.get('status');
+const discordUsername = params.get('discordUsername') || params.get('username');
+const discordId       = params.get('discordId')       || params.get('id');
+const discordAvatar   = params.get('discordAvatar')   || params.get('avatar') || null;
+const errorMsg        = params.get('message');
+const passedUid       = params.get('uid');
+
+if (status === 'error' || errorMsg) {
+  showError(errorMsg || 'Discord OAuth failed. Please try again.');
+} else if (status === 'ok' && discordId && discordUsername) {
+  // Wait for Firebase auth, then write the Discord data into joinApplications/{uid}
+  onAuthStateChanged(auth, async user => {
+    const uid = user?.uid || passedUid;
+    if (!uid) {
+      showError('Could not identify your SkyHigh account. Please log in and try again.');
+      return;
+    }
+    try {
+      const ref = doc(db, 'joinApplications', uid);
+      await updateDoc(ref, {
+        discordLinked:    true,
+        discordUserId:    discordId,
+        discordUsername:  discordUsername,
+        discordAvatar:    discordAvatar,
+        discordRoleSynced: false,  // backend will flip this to true after role is applied
+        discordLinkedAt:  serverTimestamp()
+      });
+      showSuccess(discordUsername);
+    } catch(err) {
+      console.error('Firestore write failed', err);
+      showError('Account found but failed to save Discord link: ' + err.message);
+    }
+  });
+} else {
+  showError('Invalid callback. Missing Discord data. Please try connecting again from your profile.');
+}
+</script>
+</body>
+</html>

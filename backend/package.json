@@ -1,0 +1,16 @@
+{
+  "name": "skyhigh-discord-sync",
+  "version": "1.0.0",
+  "description": "SkyHigh Network Discord role sync backend",
+  "main": "discord-sync.js",
+  "scripts": {
+    "start": "node discord-sync.js",
+    "dev": "node --watch discord-sync.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
+    "express": "^4.18.0",
+    "node-fetch": "^2.7.0"
+  }
+}

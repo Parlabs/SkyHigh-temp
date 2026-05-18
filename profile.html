@@ -9,581 +9,147 @@
 <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SkyHigh Network — The Best Virtual Aviation Network</title>
+<title>SkyHigh Network — My Profile</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
 <style>
-:root {
-  --c1: #0f2535;
-  --c2: #25562d;
-  --c3: #8cc576;
-  --c4: #0e1a26;
-  --c5: #193247;
-  --glass: rgba(15,37,53,0.72);
-  --border-hi: rgba(140,197,118,0.28);
-  --text: #d0e8d8;
-  --muted: #6a9a7e;
-  --font-head: 'Plus Jakarta Sans', sans-serif;
-  --font-body: 'Lexend', sans-serif;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --c1:#0f2535;--c2:#25562d;--c3:#8cc576;--c4:#0e1a26;--c5:#193247;
+  --glass:rgba(15,37,53,0.55);--glass2:rgba(14,26,38,0.65);
+  --border:rgba(140,197,118,0.14);--border-hi:rgba(140,197,118,0.28);
+  --text:#d0e8d8;--muted:#6a9a7e;
+  --font-head:'Plus Jakarta Sans',sans-serif;--font-body:'Lexend',sans-serif;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: var(--font-body);
-  background: radial-gradient(circle at top left, #25562d22, #0e1a26 55%), #0e1a26;
-  color: var(--text);
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
-}
-.profile-shell {
-  width: 100%;
-  max-width: 720px;
-  background: var(--glass);
-  border-radius: 24px;
-  border: 1px solid var(--border-hi);
-  box-shadow: 0 20px 70px rgba(0,0,0,0.75);
-  padding: 26px 28px 26px;
-  backdrop-filter: blur(28px);
-}
-.profile-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  margin-bottom: 20px;
-}
-.profile-ident {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.profile-avatar {
-  width: 52px;
-  height: 52px;
-  border-radius: 999px;
-  background: radial-gradient(circle at 30% 20%, #8cc576, #193247);
-  display: grid;
-  place-items: center;
-  box-shadow: 0 0 22px rgba(140,197,118,0.5);
-  font-family: var(--font-head);
-  font-weight: 800;
-  font-size: 20px;
-  color: #0e1a26;
-}
-.profile-name {
-  font-family: var(--font-head);
-  font-size: 20px;
-  font-weight: 800;
-}
-.profile-email {
-  font-size: 13px;
-  color: var(--muted);
-}
-.profile-badges {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 4px;
-}
-.badge-pill {
-  padding: 3px 8px;
-  border-radius: 999px;
-  border: 1px solid rgba(140,197,118,0.3);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--c3);
-  background: rgba(140,197,118,0.08);
-}
-.profile-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.btn-outline, .btn-danger {
-  padding: 9px 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(140,197,118,0.4);
-  background: transparent;
-  color: var(--text);
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  justify-content: center;
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
-}
-.btn-outline:hover {
-  background: rgba(140,197,118,0.15);
-  border-color: rgba(140,197,118,0.7);
-}
-.btn-danger {
-  border-color: rgba(255,110,110,0.55);
-  color: #ffb3b3;
-}
-.btn-danger:hover {
-  background: rgba(220,68,68,0.16);
-  border-color: rgba(255,110,110,0.85);
-}
-.profile-grid {
-  display: grid;
-  grid-template-columns: 1.1fr 1.2fr;
-  gap: 20px;
-}
-@media (max-width: 720px) {
-  .profile-grid {
-    grid-template-columns: 1fr;
-  }
-  .profile-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .profile-actions {
-    flex-direction: row;
-    width: 100%;
-  }
-  .profile-actions button {
-    flex: 1;
-  }
-}
-.card {
-  background: rgba(5,15,23,0.92);
-  border-radius: 16px;
-  border: 1px solid rgba(140,197,118,0.22);
-  padding: 14px 16px 14px;
-}
-.card-title {
-  font-family: var(--font-head);
-  font-size: 14px;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-.card-sub {
-  font-size: 12px;
-  color: var(--muted);
-  margin-bottom: 10px;
-}
-.metric-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 13px;
-  padding: 6px 0;
-}
-.metric-label {
-  color: var(--muted);
-}
-.metric-value {
-  font-weight: 600;
-}
-.awards-list {
-  list-style: none;
-  margin-top: 4px;
-  font-size: 13px;
-}
-.awards-list li {
-  padding: 4px 0;
-  border-bottom: 1px solid rgba(140,197,118,0.08);
-}
-.awards-list li:last-child {
-  border-bottom: none;
-}
-.empty-state {
-  font-size: 12.5px;
-  color: var(--muted);
-}
-#profile-message {
-  margin-top: 14px;
-  font-size: 12px;
-  padding: 8px 10px;
-  border-radius: 9px;
-  border: 1px solid transparent;
-}
-#profile-message.error {
-  border-color: rgba(255,110,110,0.4);
-  background: rgba(220,68,68,0.15);
-  color: #ffb3b3;
-}
-#profile-message.success {
-  border-color: rgba(140,197,118,0.4);
-  background: rgba(140,197,118,0.15);
-  color: #e3f8dd;
-}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--c4);color:var(--text);font-size:15px;line-height:1.65;overflow-x:hidden;min-height:100vh;}
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* BG */
+.bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bg-orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.28}
+.orb1{width:700px;height:500px;background:radial-gradient(circle,#25562d,transparent 70%);top:-100px;left:-200px;animation:float1 22s ease-in-out infinite alternate}
+.orb2{width:600px;height:600px;background:radial-gradient(circle,#0f2535,transparent 70%);bottom:0;right:-150px;animation:float2 18s ease-in-out infinite alternate}
+.orb3{width:400px;height:300px;background:radial-gradient(circle,#8cc57630,transparent 70%);top:40%;left:40%;animation:float3 26s ease-in-out infinite alternate}
+@keyframes float1{to{transform:translate(60px,80px)}}
+@keyframes float2{to{transform:translate(-80px,-60px)}}
+@keyframes float3{to{transform:translate(40px,-40px)}}
+.radar-bg{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:0;pointer-events:none;opacity:0.04}
+.radar-bg circle{fill:none;stroke:#8cc576;stroke-width:1}
+*{position:relative;z-index:1}
+.bg-canvas,.radar-bg{z-index:0}
 
-:root {
-  --c1: #0f2535;   /* deep navy */
-  --c2: #25562d;   /* forest green */
-  --c3: #8cc576;   /* lime accent */
-  --c4: #0e1a26;   /* darkest bg */
-  --c5: #193247;   /* mid blue */
-  --glass: rgba(15,37,53,0.55);
-  --glass2: rgba(14,26,38,0.65);
-  --border: rgba(140,197,118,0.14);
-  --border-hi: rgba(140,197,118,0.28);
-  --text: #d0e8d8;
-  --muted: #6a9a7e;
-  --font-head: 'Plus Jakarta Sans', sans-serif;
-  --font-body: 'Lexend', sans-serif;
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:64px;display:flex;align-items:center;padding:0 40px;background:rgba(14,26,38,0.7);backdrop-filter:blur(24px) saturate(160%);border-bottom:1px solid var(--border-hi);box-shadow:0 4px 32px rgba(0,0,0,0.35)}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0;margin-right:auto}
+.nav-logo-badge{width:36px;height:36px;background:transparent;border-radius:8px;display:grid;place-items:center;font-family:var(--font-head);font-weight:800;font-size:14px;color:#0e1a26;box-shadow:0 0 16px rgba(140,197,118,0.45),0 2px 8px rgba(0,0,0,0.4)}
+.nav-logo-text{font-family:var(--font-head);font-weight:700;font-size:16px;color:var(--text);line-height:1.1}
+.nav-logo-sub{font-size:10px;font-weight:400;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase}
+.nav-links{display:flex;align-items:center;gap:4px;list-style:none}
+.nav-links a{display:block;padding:8px 14px;font-size:13.5px;font-weight:500;color:var(--muted);text-decoration:none;border-radius:8px;transition:color 0.2s,background 0.2s}
+.nav-links a:hover{color:var(--text);background:rgba(140,197,118,0.08)}
+.nav-links a.active{color:var(--c3)}
+.nav-profile{position:relative;margin-left:12px}
+.profile-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border-hi);background:rgba(15,37,53,0.8);display:grid;place-items:center;cursor:pointer;color:var(--muted);transition:background 0.2s,border-color 0.2s,color 0.2s,box-shadow 0.2s}
+.profile-btn svg{width:18px;height:18px;stroke:currentColor;stroke-width:1.6;fill:none}
+.profile-btn:hover{background:rgba(140,197,118,0.12);border-color:var(--border-hi);color:var(--c3);box-shadow:0 0 12px rgba(140,197,118,0.3)}
+.profile-menu{position:absolute;top:42px;right:0;min-width:180px;background:rgba(14,26,38,0.96);border-radius:12px;border:1px solid var(--border-hi);box-shadow:0 8px 28px rgba(0,0,0,0.6);padding:8px 0;backdrop-filter:blur(18px);z-index:1200}
+.profile-menu-header{padding:8px 14px 6px;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em}
+.profile-menu-item{width:100%;text-align:left;padding:8px 14px;border:none;background:transparent;color:var(--text);font-family:var(--font-body);font-size:13px;cursor:pointer;display:block;transition:background 0.15s,color 0.15s}
+.profile-menu-item:hover{background:rgba(140,197,118,0.12);color:var(--c3)}
+.nav-cta{margin-left:20px;padding:9px 20px;background:linear-gradient(135deg,#8cc576,#3d8a35);color:#0e1a26!important;font-weight:700!important;border-radius:9px;font-size:13.5px;text-decoration:none;transition:box-shadow 0.2s,transform 0.2s!important;box-shadow:0 0 20px rgba(140,197,118,0.3);white-space:nowrap}
+.nav-cta:hover{transform:translateY(-1px)!important;box-shadow:0 0 30px rgba(140,197,118,0.5)!important;background:linear-gradient(135deg,#a0d888,#4da040)!important}
+
+/* PROFILE LAYOUT */
+.profile-page{max-width:820px;margin:0 auto;padding:96px 24px 64px}
+.profile-shell{background:var(--glass);border-radius:24px;border:1px solid var(--border-hi);box-shadow:0 20px 70px rgba(0,0,0,0.75);padding:26px 28px;backdrop-filter:blur(28px);margin-bottom:20px}
+.profile-header{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:20px}
+.profile-ident{display:flex;align-items:center;gap:14px}
+.profile-avatar{width:52px;height:52px;border-radius:999px;background:radial-gradient(circle at 30% 20%,#8cc576,#193247);display:grid;place-items:center;box-shadow:0 0 22px rgba(140,197,118,0.5);font-family:var(--font-head);font-weight:800;font-size:20px;color:#0e1a26}
+.profile-name{font-family:var(--font-head);font-size:20px;font-weight:800}
+.profile-email{font-size:13px;color:var(--muted)}
+.profile-badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.badge-pill{padding:3px 8px;border-radius:999px;border:1px solid rgba(140,197,118,0.3);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--c3);background:rgba(140,197,118,0.08)}
+.profile-actions{display:flex;flex-direction:column;gap:8px}
+.btn-outline,.btn-danger,.btn-primary-sm,.btn-discord{padding:9px 14px;border-radius:10px;border:1px solid rgba(140,197,118,0.4);background:transparent;color:var(--text);font-family:var(--font-body);font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:8px;justify-content:center;transition:background 0.2s,border-color 0.2s,color 0.2s;white-space:nowrap}
+.btn-outline:hover,.btn-primary-sm:hover{background:rgba(140,197,118,0.15);border-color:rgba(140,197,118,0.7)}
+.btn-danger{border-color:rgba(255,110,110,0.55);color:#ffb3b3}
+.btn-danger:hover{background:rgba(220,68,68,0.16);border-color:rgba(255,110,110,0.85)}
+.btn-discord{background:linear-gradient(135deg,#5865F2,#404eed);border-color:transparent;color:#fff;font-weight:600}
+.btn-discord:hover{background:linear-gradient(135deg,#6875f5,#4f5ef0);border-color:transparent}
+.btn-discord:disabled{opacity:0.5;cursor:not-allowed}
+.profile-grid{display:grid;grid-template-columns:1.1fr 1.2fr;gap:20px}
+.card{background:rgba(5,15,23,0.92);border-radius:16px;border:1px solid rgba(140,197,118,0.22);padding:14px 16px}
+.card-title{font-family:var(--font-head);font-size:14px;font-weight:700;margin-bottom:8px}
+.card-sub{font-size:12px;color:var(--muted);margin-bottom:10px}
+.metric-row{display:flex;align-items:center;justify-content:space-between;font-size:13px;padding:6px 0}
+.metric-label{color:var(--muted)}
+.metric-value{font-weight:600}
+.awards-list{list-style:none;margin-top:4px;font-size:13px}
+.awards-list li{padding:4px 0;border-bottom:1px solid rgba(140,197,118,0.08)}
+.awards-list li:last-child{border-bottom:none}
+.empty-state{font-size:12.5px;color:var(--muted)}
+
+/* DISCORD CARD */
+.discord-card{background:rgba(5,15,23,0.92);border-radius:16px;border:1px solid rgba(88,101,242,0.35);padding:18px 20px;margin-top:0}
+.discord-card-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.discord-icon{width:32px;height:32px;background:linear-gradient(135deg,#5865F2,#404eed);border-radius:8px;display:grid;place-items:center;flex-shrink:0}
+.discord-card-title{font-family:var(--font-head);font-size:14px;font-weight:700}
+.discord-card-sub{font-size:12px;color:var(--muted)}
+.discord-status-row{display:flex;align-items:center;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid rgba(140,197,118,0.07)}
+.discord-status-row:last-of-type{border-bottom:none}
+.discord-status-label{color:var(--muted)}
+.discord-status-value{font-weight:600;text-align:right}
+.discord-status-value.linked{color:#8cc576}
+.discord-status-value.pending{color:#f0a844}
+.discord-status-value.not-linked{color:var(--muted)}
+.discord-msg{display:none;font-size:12px;padding:8px 10px;border-radius:9px;border:1px solid transparent;margin-top:10px;line-height:1.5}
+.discord-msg.show{display:block}
+.discord-msg.info{border-color:rgba(140,197,118,0.4);background:rgba(140,197,118,0.1);color:#e3f8dd}
+.discord-msg.error{border-color:rgba(255,110,110,0.4);background:rgba(220,68,68,0.15);color:#ffb3b3}
+.discord-msg.success{border-color:rgba(88,101,242,0.5);background:rgba(88,101,242,0.12);color:#c5caff}
+.discord-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+
+/* MESSAGE */
+#profile-message{margin-top:14px;font-size:12px;padding:8px 10px;border-radius:9px;border:1px solid transparent}
+#profile-message.error{border-color:rgba(255,110,110,0.4);background:rgba(220,68,68,0.15);color:#ffb3b3}
+#profile-message.success{border-color:rgba(140,197,118,0.4);background:rgba(140,197,118,0.15);color:#e3f8dd}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);background:rgba(14,26,38,0.8);backdrop-filter:blur(20px);padding:60px 40px 40px;position:relative;z-index:1}
+.footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px}
+.footer-logo{font-family:var(--font-head);font-size:22px;font-weight:800;color:var(--text);margin-bottom:12px}
+.footer-logo-badge{display:inline-flex;align-items:center;gap:10px;text-decoration:none;margin-bottom:14px}
+.footer-desc{font-size:13px;color:var(--muted);line-height:1.7;font-weight:300;max-width:260px}
+.footer-col-title{font-family:var(--font-head);font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(140,197,118,0.6);margin-bottom:16px}
+.footer-links{list-style:none;display:flex;flex-direction:column;gap:10px}
+.footer-links a{font-size:13.5px;color:var(--muted);text-decoration:none;transition:color 0.2s}
+.footer-links a:hover{color:var(--text)}
+.footer-bottom{padding-top:28px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-copy{font-size:12px;color:rgba(106,154,126,0.6)}
+.footer-socials{display:flex;gap:10px}
+.social-btn{width:34px;height:34px;background:rgba(15,37,53,0.7);border:1px solid var(--border);border-radius:8px;display:grid;place-items:center;color:var(--muted);text-decoration:none;transition:background 0.2s,color 0.2s,border-color 0.2s}
+.social-btn:hover{background:rgba(140,197,118,0.12);color:var(--c3);border-color:var(--border-hi)}
+
+@media(max-width:720px){
+  .profile-grid{grid-template-columns:1fr}
+  .profile-header{flex-direction:column;align-items:flex-start}
+  .profile-actions{flex-direction:row;width:100%}
+  .profile-actions button{flex:1}
+  .footer-inner{grid-template-columns:1fr 1fr}
+  nav{padding:0 18px}
 }
-
-html { scroll-behavior: smooth; }
-
-body {
-  font-family: var(--font-body);
-  background: var(--c4);
-  color: var(--text);
-  font-size: 15px;
-  line-height: 1.65;
-  overflow-x: hidden;
+@media(max-width:640px){
+  .footer-inner{grid-template-columns:1fr}
 }
-
-/* ─── BACKGROUND CANVAS ─── */
-.bg-canvas {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-.bg-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.28;
-}
-.orb1 { width: 700px; height: 500px; background: radial-gradient(circle, #25562d, transparent 70%); top: -100px; left: -200px; animation: float1 22s ease-in-out infinite alternate; }
-.orb2 { width: 600px; height: 600px; background: radial-gradient(circle, #0f2535, transparent 70%); bottom: 0; right: -150px; animation: float2 18s ease-in-out infinite alternate; }
-.orb3 { width: 400px; height: 300px; background: radial-gradient(circle, #8cc57630, transparent 70%); top: 40%; left: 40%; animation: float3 26s ease-in-out infinite alternate; }
-@keyframes float1 { to { transform: translate(60px, 80px); } }
-@keyframes float2 { to { transform: translate(-80px, -60px); } }
-@keyframes float3 { to { transform: translate(40px, -40px); } }
-
-/* radar rings subtle bg */
-.radar-bg {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.04;
-}
-.radar-bg circle { fill: none; stroke: #8cc576; stroke-width: 1; }
-
-* { position: relative; z-index: 1; }
-.bg-canvas, .radar-bg { z-index: 0; }
-
-/* ─── NAV ─── */
-nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 1000;
-  height: 64px;
-  display: flex;
-  align-items: center;
-  padding: 0 40px;
-  gap: 0;
-  background: rgba(14,26,38,0.7);
-  backdrop-filter: blur(24px) saturate(160%);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
-  border-bottom: 1px solid var(--border-hi);
-  box-shadow: 0 4px 32px rgba(0,0,0,0.35);
-}
-
-.nav-logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  text-decoration: none;
-  flex-shrink: 0;
-  margin-right: auto;
-}
-.nav-logo-badge {
-  width: 36px;
-  height: 36px;
-  background: transparent;
-  border-radius: 8px;
-  display: grid;
-  place-items: center;
-  font-family: var(--font-head);
-  font-weight: 800;
-  font-size: 14px;
-  color: #0e1a26;
-  box-shadow: 0 0 16px rgba(140,197,118,0.45), 0 2px 8px rgba(0,0,0,0.4);
-  letter-spacing: 0.02em;
-}
-.nav-logo-text {
-  font-family: var(--font-head);
-  font-weight: 700;
-  font-size: 16px;
-  color: var(--text);
-  line-height: 1.1;
-}
-.nav-logo-sub {
-  font-size: 10px;
-  font-weight: 400;
-  color: var(--muted);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  list-style: none;
-}
-.nav-links a {
-  display: block;
-  padding: 8px 14px;
-  font-size: 13.5px;
-  font-weight: 500;
-  color: var(--muted);
-  text-decoration: none;
-  border-radius: 8px;
-  transition: color 0.2s, background 0.2s;
-  letter-spacing: 0.01em;
-}
-.nav-links a:hover { color: var(--text); background: rgba(140,197,118,0.08); }
-.nav-links a.active { color: var(--c3); }
-
-.nav-profile {
-  position: relative;
-  margin-left: 12px;
-}
-
-.profile-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: 1px solid var(--border-hi);
-  background: rgba(15,37,53,0.8);
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  color: var(--muted);
-  transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
-}
-
-.profile-btn svg {
-  width: 18px;
-  height: 18px;
-  stroke: currentColor;
-  stroke-width: 1.6;
-  fill: none;
-}
-
-.profile-btn:hover {
-  background: rgba(140,197,118,0.12);
-  border-color: var(--border-hi);
-  color: var(--c3);
-  box-shadow: 0 0 12px rgba(140,197,118,0.3);
-}
-
-.profile-menu {
-  position: absolute;
-  top: 42px;
-  right: 0;
-  min-width: 180px;
-  background: rgba(14,26,38,0.96);
-  border-radius: 12px;
-  border: 1px solid var(--border-hi);
-  box-shadow: 0 8px 28px rgba(0,0,0,0.6);
-  padding: 8px 0;
-  backdrop-filter: blur(18px);
-  z-index: 1200;
-}
-
-.profile-menu-header {
-  padding: 8px 14px 6px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.profile-menu-item {
-  width: 100%;
-  text-align: left;
-  padding: 8px 14px;
-  border: none;
-  background: transparent;
-  color: var(--text);
-  font-family: var(--font-body);
-  font-size: 13px;
-  cursor: pointer;
-  display: block;
-  transition: background 0.15s, color 0.15s;
-}
-
-.profile-menu-item:hover {
-  background: rgba(140,197,118,0.12);
-  color: var(--c3);
-}
-
-.nav-cta {
-  margin-left: 20px;
-  padding: 9px 20px;
-  background: linear-gradient(135deg, #8cc576, #3d8a35);
-  color: #0e1a26 !important;
-  font-weight: 700 !important;
-  border-radius: 9px;
-  font-size: 13.5px;
-  text-decoration: none;
-  transition: box-shadow 0.2s, transform 0.2s !important;
-  box-shadow: 0 0 20px rgba(140,197,118,0.3);
-  white-space: nowrap;
-}
-.nav-cta:hover { transform: translateY(-1px) !important; box-shadow: 0 0 30px rgba(140,197,118,0.5) !important; background: rgba(0,0,0,0) !important; background: linear-gradient(135deg, #a0d888, #4da040) !important; }
-
-
-footer {
-      border-top: 1px solid var(--border);
-      background: rgba(14, 26, 38, 0.8);
-      backdrop-filter: blur(20px);
-      padding: 60px 40px 40px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .footer-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1fr;
-      gap: 48px;
-      margin-bottom: 48px;
-    }
-
-    .footer-logo {
-      font-family: var(--font-head);
-      font-size: 22px;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 12px;
-    }
-
-    .footer-logo-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      margin-bottom: 14px;
-    }
-
-    .footer-desc {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.7;
-      font-weight: 300;
-      max-width: 260px;
-    }
-
-    .footer-col-title {
-      font-family: var(--font-head);
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: rgba(140, 197, 118, 0.6);
-      margin-bottom: 16px;
-    }
-
-    .footer-links {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .footer-links a {
-      font-size: 13.5px;
-      color: var(--muted);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    .footer-links a:hover {
-      color: var(--text);
-    }
-
-    .footer-bottom {
-      padding-top: 28px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .footer-copy {
-      font-size: 12px;
-      color: rgba(106, 154, 126, 0.6);
-    }
-
-    .footer-socials {
-      display: flex;
-      gap: 10px;
-    }
-
-    .social-btn {
-      width: 34px;
-      height: 34px;
-      background: rgba(15, 37, 53, 0.7);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      display: grid;
-      place-items: center;
-      color: var(--muted);
-      text-decoration: none;
-      transition: background 0.2s, color 0.2s, border-color 0.2s;
-    }
-
-    .social-btn:hover {
-      background: rgba(140, 197, 118, 0.12);
-      color: var(--c3);
-      border-color: var(--border-hi);
-    }
-
-    @media (max-width: 900px) {
-      nav { padding: 0 18px; }
-      .hero { padding: 96px 18px 56px; }
-      section { padding: 72px 18px; }
-      .stats-bar { grid-template-columns: repeat(2, 1fr); }
-      .steps-grid { grid-template-columns: 1fr; }
-      .about-grid { grid-template-columns: 1fr; gap: 32px; }
-      .airports-grid { grid-template-columns: repeat(2, 1fr); }
-      .events-grid { grid-template-columns: 1fr; }
-      .news-grid { grid-template-columns: 1fr; }
-      .atc-section { grid-template-columns: 1fr; }
-      .community-cards { grid-template-columns: 1fr; }
-      .footer-inner { grid-template-columns: 1fr 1fr; }
-    }
-
-    @media (max-width: 640px) {
-      .footer-inner { grid-template-columns: 1fr; }
-    }
-
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: var(--c4); }
-    ::-webkit-scrollbar-thumb { background: var(--c5); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--c2); }
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--c4)}
+::-webkit-scrollbar-thumb{background:var(--c5);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--c2)}
 </style>
 </head>
 <body>
 
-    
-<!-- BACKGROUND -->
 <div class="bg-canvas">
   <div class="bg-orb orb1"></div>
   <div class="bg-orb orb2"></div>
@@ -598,40 +164,40 @@ footer {
 
 <!-- NAV -->
 <nav>
-  <a href="#" class="nav-logo">
-    <div class="nav-logo-badge"><img src="icon-512.png" width=36></div>
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-badge"><img src="icon-512.png" width="36" alt=""></div>
     <div>
       <div class="nav-logo-text">SkyHigh Network</div>
       <div class="nav-logo-sub">The Best Virtual Aviation Network</div>
     </div>
   </a>
   <ul class="nav-links">
-    <li><a href="/index.html" class="active">Home</a></li>
-    <li><a href="/index.html#events">Events</a></li>
-    <li><a href="/index.html#atc">ATC Training</a></li>
-    <li><a href="/index.html#airports">Airports</a></li>
-    <li><a href="/index.html#news">News</a></li>
-    <li><a href="/index.html#community">Community</a></li>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="index.html#events">Events</a></li>
+    <li><a href="index.html#atc">ATC Training</a></li>
+    <li><a href="index.html#airports">Airports</a></li>
+    <li><a href="index.html#news">News</a></li>
+    <li><a href="index.html#community">Community</a></li>
   </ul>
-  <a href="/join.html" class="nav-cta">Join→</a>
-
-<div class="nav-profile">
-  <button class="profile-btn" id="profile-button" aria-haspopup="true" aria-expanded="false">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="12" cy="8" r="4"></circle>
-      <path d="M4 20c0-3.3 2.7-6 6-6h4c3.3 0 6 2.7 6 6"></path>
-    </svg>
-  </button>
-  <div class="profile-menu" id="profile-menu" hidden>
-    <div class="profile-menu-header" id="profile-name">Not signed in</div>
-    <button type="button" class="profile-menu-item" id="profile-link" hidden>Profile</button>
-    <button type="button" class="profile-menu-item" id="login-link">Log in</button>
-    <button type="button" class="profile-menu-item" id="logout-link" hidden>Log out</button>
+  <a href="join.html" class="nav-cta">Join</a>
+  <div class="nav-profile">
+    <button class="profile-btn" id="profile-button" aria-haspopup="true" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.3 2.7-6 6-6h4c3.3 0 6 2.7 6 6"/></svg>
+    </button>
+    <div class="profile-menu" id="profile-menu" hidden>
+      <div class="profile-menu-header" id="profile-name">Not signed in</div>
+      <button type="button" class="profile-menu-item" id="profile-link" hidden>Profile</button>
+      <button type="button" class="profile-menu-item" id="staff-dashboard-link" hidden>Staff dashboard</button>
+      <button type="button" class="profile-menu-item" id="login-link">Log in</button>
+      <button type="button" class="profile-menu-item" id="logout-link" hidden>Log out</button>
+    </div>
   </div>
-</div>
 </nav>
 
+<div class="profile-page">
   <div class="profile-shell">
+
+    <!-- HEADER -->
     <div class="profile-header">
       <div class="profile-ident">
         <div class="profile-avatar" id="profile-avatar">SH</div>
@@ -645,37 +211,21 @@ footer {
         </div>
       </div>
       <div class="profile-actions">
-        <button class="btn-outline" id="reset-password-btn">
-          Reset password
-        </button>
-        <button class="btn-danger" id="logout-btn">
-          Log out
-        </button>
+        <button class="btn-outline" id="reset-password-btn">Reset password</button>
+        <button class="btn-danger" id="logout-btn">Log out</button>
       </div>
     </div>
 
+    <!-- STATS GRID -->
     <div class="profile-grid">
       <div class="card">
         <div class="card-title">Ratings &amp; Hours</div>
         <div class="card-sub">Your current SkyHigh ratings and tracked experience.</div>
-        <div class="metric-row">
-          <div class="metric-label">ATC rating</div>
-          <div class="metric-value" id="atc-rating">—</div>
-        </div>
-        <div class="metric-row">
-          <div class="metric-label">Pilot rating</div>
-          <div class="metric-value" id="pilot-rating">—</div>
-        </div>
-        <div class="metric-row">
-          <div class="metric-label">ATC time</div>
-          <div class="metric-value" id="atc-hours">0h</div>
-        </div>
-        <div class="metric-row">
-          <div class="metric-label">Pilot time</div>
-          <div class="metric-value" id="pilot-hours">0h</div>
-        </div>
+        <div class="metric-row"><div class="metric-label">ATC rating</div><div class="metric-value" id="atc-rating">—</div></div>
+        <div class="metric-row"><div class="metric-label">Pilot rating</div><div class="metric-value" id="pilot-rating">—</div></div>
+        <div class="metric-row"><div class="metric-label">ATC time</div><div class="metric-value" id="atc-hours">0h</div></div>
+        <div class="metric-row"><div class="metric-label">Pilot time</div><div class="metric-value" id="pilot-hours">0h</div></div>
       </div>
-
       <div class="card">
         <div class="card-title">Awards</div>
         <div class="card-sub">Badges and recognitions earned on the network.</div>
@@ -684,225 +234,360 @@ footer {
       </div>
     </div>
 
+    <!-- DISCORD CARD -->
+    <div class="discord-card" style="margin-top:20px">
+      <div class="discord-card-head">
+        <div class="discord-icon">
+          <svg width="18" height="14" viewBox="0 0 24 18" fill="#fff">
+            <path d="M20.317 1.492a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.74 19.74 0 0 0 3.677 1.49a.07.07 0 0 0-.032.027C.533 6.091-.32 10.555.099 14.961a.08.08 0 0 0 .031.055 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 12.278c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="discord-card-title">Discord Account</div>
+          <div class="discord-card-sub">Link your Discord to receive your SkyHigh member role automatically.</div>
+        </div>
+      </div>
+
+      <div class="discord-status-row">
+        <div class="discord-status-label">SkyHigh account</div>
+        <div class="discord-status-value" id="dc-site-status">Checking…</div>
+      </div>
+      <div class="discord-status-row">
+        <div class="discord-status-label">Discord username</div>
+        <div class="discord-status-value not-linked" id="dc-username">Not linked</div>
+      </div>
+      <div class="discord-status-row">
+        <div class="discord-status-label">Discord ID</div>
+        <div class="discord-status-value not-linked" id="dc-id">—</div>
+      </div>
+      <div class="discord-status-row">
+        <div class="discord-status-label">Server role sync</div>
+        <div class="discord-status-value not-linked" id="dc-role-sync">Not synced</div>
+      </div>
+
+      <div class="discord-msg" id="dc-msg"></div>
+
+      <div class="discord-actions">
+        <button class="btn-discord" id="connect-discord-btn">Connect Discord</button>
+        <button class="btn-outline" id="refresh-discord-btn">Refresh</button>
+        <button class="btn-danger" id="unlink-discord-btn" hidden>Unlink Discord</button>
+      </div>
+    </div>
+
     <div id="profile-message" hidden></div>
   </div>
+</div>
+
 <!-- FOOTER -->
-  <footer>
-    <div class="footer-inner">
-      <div>
-        <a href="index.html" class="footer-logo-badge">
-          <div class="nav-logo-badge"><img src="icon-512.png" width="36" alt=""></div>
-          <div>
-            <div class="footer-logo">SkyHigh Network</div>
-            <div style="font-size:11px;color:var(--muted);">The Best Virtual Aviation Network</div>
-          </div>
-        </a>
-        <p class="footer-desc">
-          The SkyHigh Network is a free, friendly network offering as‑real‑as‑it‑gets virtual aviation for pilots and controllers of all skill levels.
-        </p>
-      </div>
-
-      <div>
-        <div class="footer-col-title">Network</div>
-        <ul class="footer-links">
-          <li><a href="index.html">Home</a></li>
-          <li><a href="events.html">Events</a></li>
-          <li><a href="#atc">ATC Training</a></li>
-        </ul>
-      </div>
-
-      <div>
-        <div class="footer-col-title">Community</div>
-        <ul class="footer-links">
-          <li><a href="https://discord.gg/eSdUKmmQB4" target="_blank">Discord</a></li>
-          <li><a href="#">Twitter / X</a></li>
-          <li><a href="#">YouTube</a></li>
-        </ul>
-      </div>
-
-      <div>
-        <div class="footer-col-title">Legal</div>
-        <ul class="footer-links">
-          <li><a href="UserAgreement.html">User Agreement</a></li>
-          <li><a href="CodeofRegulations.html">Code of Regulations</a></li>
-          <li><a href="conduct.html">Code of Conduct</a></li>
-        </ul>
-      </div>
+<footer>
+  <div class="footer-inner">
+    <div>
+      <a href="index.html" class="footer-logo-badge">
+        <div class="nav-logo-badge"><img src="icon-512.png" width="36" alt=""></div>
+        <div>
+          <div class="footer-logo">SkyHigh Network</div>
+          <div style="font-size:11px;color:var(--muted)">The Best Virtual Aviation Network</div>
+        </div>
+      </a>
+      <p class="footer-desc">The SkyHigh Network is a free, friendly network offering as‑real‑as‑it‑gets virtual aviation for pilots and controllers of all skill levels.</p>
     </div>
-
-    <div class="footer-bottom">
-      <div class="footer-copy">© 2026 SkyHigh Network Organisation</div>
-      <div class="footer-socials">
-        <a href="https://discord.gg/eSdUKmmQB4" class="social-btn" title="Discord">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515A13.2 13.2 0 0 0 12 3c-.982 0-1.955.11-2.912.327A19.79 19.79 0 0 0 4.203 4.37C2.76 6.69 2.026 9.21 2 11.77c.003 0 .006 0 .01.002A9.9 9.9 0 0 0 5.18 14.1a7.2 7.2 0 0 1 1.41-2.305 4.1 4.1 0 0 1-1.82-2.26 7.2 7.2 0 0 0 2.27 1.01 4.1 4.1 0 0 1 6.88 0 7.2 7.2 0 0 0 2.27-1.01 4.1 4.1 0 0 1-1.82 2.26 7.2 7.2 0 0 1 1.41 2.305 9.9 9.9 0 0 0 3.17-2.33c.004 0 .007 0 .01-.002-.03-2.56-.76-5.08-2.203-7.4z"></path>
-          </svg>
-        </a>
-      </div>
+    <div>
+      <div class="footer-col-title">Network</div>
+      <ul class="footer-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="events.html">Events</a></li>
+        <li><a href="index.html#atc">ATC Training</a></li>
+      </ul>
     </div>
-  </footer>
-  <script type="module">
-  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-  import {
-    getAuth,
-    onAuthStateChanged,
-    sendPasswordResetEmail,
-    signOut
-  } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
-  import {
-    getFirestore,
-    doc,
-    getDoc
-  } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+    <div>
+      <div class="footer-col-title">Community</div>
+      <ul class="footer-links">
+        <li><a href="https://discord.gg/eSdUKmmQB4" target="_blank">Discord</a></li>
+        <li><a href="#">Twitter / X</a></li>
+        <li><a href="#">YouTube</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Legal</div>
+      <ul class="footer-links">
+        <li><a href="UserAgreement.html">User Agreement</a></li>
+        <li><a href="CodeofRegulations.html">Code of Regulations</a></li>
+        <li><a href="conduct.html">Code of Conduct</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 SkyHigh Network Organisation</div>
+    <div class="footer-socials">
+      <a href="https://discord.gg/eSdUKmmQB4" class="social-btn" title="Discord">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515A13.2 13.2 0 0 0 12 3c-.982 0-1.955.11-2.912.327A19.79 19.79 0 0 0 4.203 4.37C2.76 6.69 2.026 9.21 2 11.77c.003 0 .006 0 .01.002A9.9 9.9 0 0 0 5.18 14.1a7.2 7.2 0 0 1 1.41-2.305 4.1 4.1 0 0 1-1.82-2.26 7.2 7.2 0 0 0 2.27 1.01 4.1 4.1 0 0 1 6.88 0 7.2 7.2 0 0 0 2.27-1.01 4.1 4.1 0 0 1-1.82 2.26 7.2 7.2 0 0 1 1.41 2.305 9.9 9.9 0 0 0 3.17-2.33c.004 0 .007 0 .01-.002-.03-2.56-.76-5.08-2.203-7.4z"/></svg>
+      </a>
+    </div>
+  </div>
+</footer>
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAdvM-qqfy5XXPNom8bRvVt4LXSG8818fw",
-    authDomain: "skyhigh-55704.firebaseapp.com",
-    projectId: "skyhigh-55704",
-    storageBucket: "skyhigh-55704.firebasestorage.app",
-    messagingSenderId: "1067950745554",
-    appId: "1:1067950745554:web:483ed877b0ea4085da8a0b",
-    measurementId: "G-1SJCXQPEQJ"
-  };
+<script type="module">
+import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, sendPasswordResetEmail, signOut } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js';
+import { getFirestore, doc, getDoc, updateDoc, deleteField } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js';
 
-  const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+const firebaseConfig = {
+  apiKey: 'AIzaSyAdvM-qqfy5XXPNom8bRvVt4LXSG8818fw',
+  authDomain: 'skyhigh-55704.firebaseapp.com',
+  projectId: 'skyhigh-55704',
+  storageBucket: 'skyhigh-55704.firebasestorage.app',
+  messagingSenderId: '1067950745554',
+  appId: '1:1067950745554:web:483ed877b0ea4085da8a0b',
+  measurementId: 'G-1SJCXQPEQJ'
+};
 
-  const avatarEl = document.getElementById('profile-avatar');
-  const nameEl = document.getElementById('profile-display-name');
-  const emailEl = document.getElementById('profile-email');
-  const badgeAtc = document.getElementById('badge-atc');
-  const badgePilot = document.getElementById('badge-pilot');
-  const atcRatingEl = document.getElementById('atc-rating');
-  const pilotRatingEl = document.getElementById('pilot-rating');
-  const atcHoursEl = document.getElementById('atc-hours');
-  const pilotHoursEl = document.getElementById('pilot-hours');
-  const awardsListEl = document.getElementById('awards-list');
-  const awardsEmptyEl = document.getElementById('awards-empty');
-  const msgBox = document.getElementById('profile-message');
-  const logoutBtn = document.getElementById('logout-btn');
-  const resetBtn = document.getElementById('reset-password-btn');
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-  function showMessage(text, type) {
-    if (!msgBox) return;
-    msgBox.textContent = text;
-    msgBox.hidden = false;
-    msgBox.className = '';
-    if (type === 'error') msgBox.classList.add('error');
-    if (type === 'success') msgBox.classList.add('success');
+// ── NAV PROFILE MENU ──────────────────────────────────────────────────
+const profileButton = document.getElementById('profile-button');
+const profileMenu   = document.getElementById('profile-menu');
+const profileName   = document.getElementById('profile-name');
+const profileLink   = document.getElementById('profile-link');
+const loginLink     = document.getElementById('login-link');
+const logoutLink    = document.getElementById('logout-link');
+const staffDashLink = document.getElementById('staff-dashboard-link');
+
+function toggleMenu() {
+  if (!profileMenu) return;
+  const hidden = profileMenu.hasAttribute('hidden');
+  if (hidden) { profileMenu.removeAttribute('hidden'); profileButton?.setAttribute('aria-expanded','true'); }
+  else        { profileMenu.setAttribute('hidden',''); profileButton?.setAttribute('aria-expanded','false'); }
+}
+profileButton?.addEventListener('click', e => { e.stopPropagation(); toggleMenu(); });
+document.addEventListener('click', e => {
+  if (profileMenu && !profileMenu.hasAttribute('hidden') &&
+      !profileMenu.contains(e.target) && e.target !== profileButton) {
+    profileMenu.setAttribute('hidden','');
+  }
+});
+loginLink?.addEventListener('click', () => window.location.href = 'login.html');
+logoutLink?.addEventListener('click', async () => { await signOut(auth); window.location.replace('index.html'); });
+profileLink?.addEventListener('click', () => window.location.href = 'profile.html');
+staffDashLink?.addEventListener('click', () => window.location.href = 'staff-dashboard.html');
+
+// ── PROFILE PAGE ELEMENTS ─────────────────────────────────────────────
+const avatarEl       = document.getElementById('profile-avatar');
+const nameEl         = document.getElementById('profile-display-name');
+const emailEl        = document.getElementById('profile-email');
+const badgeAtc       = document.getElementById('badge-atc');
+const badgePilot     = document.getElementById('badge-pilot');
+const atcRatingEl    = document.getElementById('atc-rating');
+const pilotRatingEl  = document.getElementById('pilot-rating');
+const atcHoursEl     = document.getElementById('atc-hours');
+const pilotHoursEl   = document.getElementById('pilot-hours');
+const awardsListEl   = document.getElementById('awards-list');
+const awardsEmptyEl  = document.getElementById('awards-empty');
+const msgBox         = document.getElementById('profile-message');
+const logoutBtn      = document.getElementById('logout-btn');
+const resetBtn       = document.getElementById('reset-password-btn');
+
+// Discord elements
+const dcSiteStatus   = document.getElementById('dc-site-status');
+const dcUsername     = document.getElementById('dc-username');
+const dcId           = document.getElementById('dc-id');
+const dcRoleSync     = document.getElementById('dc-role-sync');
+const dcMsg          = document.getElementById('dc-msg');
+const connectBtn     = document.getElementById('connect-discord-btn');
+const refreshBtn     = document.getElementById('refresh-discord-btn');
+const unlinkBtn      = document.getElementById('unlink-discord-btn');
+
+// ── HELPERS ───────────────────────────────────────────────────────────
+function showMsg(el, text, type) {
+  if (!el) return;
+  el.textContent = text;
+  el.className = `discord-msg ${type} show`;
+}
+
+function initialsFromName(name, email) {
+  if (name) {
+    const p = name.split(' ').filter(Boolean);
+    if (p.length === 1) return p[0][0].toUpperCase();
+    return (p[0][0] + p[p.length-1][0]).toUpperCase();
+  }
+  return email ? email[0].toUpperCase() : 'SH';
+}
+
+// ── DISCORD STATE ─────────────────────────────────────────────────────
+async function loadDiscordState(user, data) {
+  if (dcSiteStatus) dcSiteStatus.textContent = user.email || 'Signed in';
+
+  const linked = !!data.discordLinked;
+  const username = data.discordUsername || null;
+  const id       = data.discordUserId   || null;
+  const synced   = !!data.discordRoleSynced;
+
+  if (dcUsername) {
+    dcUsername.textContent = username || 'Not linked';
+    dcUsername.className   = 'discord-status-value ' + (username ? 'linked' : 'not-linked');
+  }
+  if (dcId) {
+    dcId.textContent = id || '—';
+    dcId.className   = 'discord-status-value ' + (id ? 'linked' : 'not-linked');
+  }
+  if (dcRoleSync) {
+    dcRoleSync.textContent = synced ? 'Role granted ✓' : linked ? 'Linked – sync pending' : 'Not synced';
+    dcRoleSync.className   = 'discord-status-value ' + (synced ? 'linked' : linked ? 'pending' : 'not-linked');
   }
 
-  function initialsFromName(name, email) {
-    if (name) {
-      const parts = name.split(' ').filter(Boolean);
-      if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
-      return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
-    }
-    if (email) return email.charAt(0).toUpperCase();
-    return 'SH';
+  if (linked) {
+    showMsg(dcMsg, 'Discord linked as ' + (username || id) + '. ' + (synced ? 'Your member role has been applied.' : 'Role will be applied once the backend sync is live.'), 'success');
+    if (unlinkBtn) unlinkBtn.hidden = false;
+    if (connectBtn) connectBtn.textContent = 'Re-link Discord';
+  } else {
+    showMsg(dcMsg, 'No Discord account linked yet. Press Connect Discord to start.', 'info');
+    if (unlinkBtn) unlinkBtn.hidden = true;
+    if (connectBtn) connectBtn.textContent = 'Connect Discord';
   }
+}
 
-  // Load ATC/pilot rating, hours, awards from Firestore
-  async function loadProfileData(user) {
-    try {
-      // Pull data from joinApplications/{uid}
-      const ref = doc(db, 'joinApplications', user.uid);
-      const snap = await getDoc(ref);
+// ── LOAD PROFILE FROM joinApplications ───────────────────────────────
+async function loadProfileData(user) {
+  try {
+    const ref  = doc(db, 'joinApplications', user.uid);
+    const snap = await getDoc(ref);
 
-      if (!snap.exists()) {
-        // No doc yet – use defaults
-        atcRatingEl.textContent = '—';
-        pilotRatingEl.textContent = '—';
-        badgeAtc.textContent = 'ATC: —';
-        badgePilot.textContent = 'Pilot: —';
-        atcHoursEl.textContent = '0h';
-        pilotHoursEl.textContent = '0h';
-        if (awardsEmptyEl) awardsEmptyEl.hidden = false;
-        return;
-      }
-
-      const data = snap.data();
-
-      // Ratings (written by join.html as atcRating/pilotRating)
-      const atcRating = data.atcRating || '—';
-      const pilotRating = data.pilotRating || '—';
-
-      // Hours – default to 0 if you haven’t started tracking yet
-      const atcHours = data.atcHours ?? 0;
-      const pilotHours = data.pilotHours ?? 0;
-
-      // Awards – optional array
-      const awards = Array.isArray(data.awards) ? data.awards : [];
-
-      atcRatingEl.textContent = atcRating;
-      pilotRatingEl.textContent = pilotRating;
-      badgeAtc.textContent = 'ATC: ' + atcRating;
-      badgePilot.textContent = 'Pilot: ' + pilotRating;
-      atcHoursEl.textContent = atcHours + 'h';
-      pilotHoursEl.textContent = pilotHours + 'h';
-
-      if (awards.length && awardsListEl) {
-        awardsListEl.innerHTML = '';
-        awards.forEach(a => {
-          const li = document.createElement('li');
-          li.textContent = a;
-          awardsListEl.appendChild(li);
-        });
-        if (awardsEmptyEl) awardsEmptyEl.hidden = true;
-      } else {
-        if (awardsEmptyEl) awardsEmptyEl.hidden = false;
-      }
-    } catch (err) {
-      console.error('Failed to load profile data', err);
-      showMessage('Failed to load profile data. Please try again later.', 'error');
-    }
-  }
-
-  // Auth gate + basic identity info
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      window.location.replace('login.html');
+    if (!snap.exists()) {
+      atcRatingEl.textContent   = '—';
+      pilotRatingEl.textContent = '—';
+      badgeAtc.textContent      = 'ATC: —';
+      badgePilot.textContent    = 'Pilot: —';
+      atcHoursEl.textContent    = '0h';
+      pilotHoursEl.textContent  = '0h';
+      if (awardsEmptyEl) awardsEmptyEl.hidden = false;
+      await loadDiscordState(user, {});
       return;
     }
 
-    const displayName = user.displayName || '';
-    const email = user.email || '';
-    if (nameEl) nameEl.textContent = displayName || 'SkyHigh Member';
-    if (emailEl) emailEl.textContent = email;
-    if (avatarEl) avatarEl.textContent = initialsFromName(displayName, email);
+    const data = snap.data();
+    const atcRating   = data.atcRating   || '—';
+    const pilotRating = data.pilotRating  || '—';
+    const atcHours    = data.atcHours    ?? 0;
+    const pilotHours  = data.pilotHours  ?? 0;
+    const awards      = Array.isArray(data.awards) ? data.awards : [];
 
-    loadProfileData(user);
-  });
+    atcRatingEl.textContent   = atcRating;
+    pilotRatingEl.textContent = pilotRating;
+    badgeAtc.textContent      = 'ATC: ' + atcRating;
+    badgePilot.textContent    = 'Pilot: ' + pilotRating;
+    atcHoursEl.textContent    = atcHours + 'h';
+    pilotHoursEl.textContent  = pilotHours + 'h';
 
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', async () => {
-      try {
-        await signOut(auth);
-        window.location.replace('index.html');
-      } catch (err) {
-        console.error('Failed to sign out', err);
-        showMessage('Failed to log out. Please try again.', 'error');
-      }
-    });
+    if (awards.length && awardsListEl) {
+      awardsListEl.innerHTML = '';
+      awards.forEach(a => {
+        const li = document.createElement('li');
+        li.textContent = a;
+        awardsListEl.appendChild(li);
+      });
+      if (awardsEmptyEl) awardsEmptyEl.hidden = true;
+    } else {
+      if (awardsEmptyEl) awardsEmptyEl.hidden = false;
+    }
+
+    await loadDiscordState(user, data);
+
+  } catch(err) {
+    console.error('Profile load error', err);
+    if (msgBox) { msgBox.textContent = 'Failed to load profile data.'; msgBox.className = 'error'; msgBox.hidden = false; }
+  }
+}
+
+// ── CONNECT DISCORD BUTTON ────────────────────────────────────────────
+// ⚠️  Replace the URL below with your real backend Discord login endpoint
+// e.g. https://YOUR_ORACLE_SERVER/discord/login
+// or   https://us-central1-skyhigh-55704.cloudfunctions.net/discordLogin
+const DISCORD_LOGIN_URL = 'YOUR_BACKEND_DISCORD_LOGIN_URL';
+
+connectBtn?.addEventListener('click', () => {
+  const user = auth.currentUser;
+  if (!user) { window.location.href = 'login.html'; return; }
+
+  if (DISCORD_LOGIN_URL === 'YOUR_BACKEND_DISCORD_LOGIN_URL') {
+    showMsg(dcMsg, 'Backend not set up yet. Replace DISCORD_LOGIN_URL in profile.html with your server URL.', 'error');
+    return;
   }
 
-  if (resetBtn) {
-    resetBtn.addEventListener('click', async () => {
-      const user = auth.currentUser;
-      if (!user || !user.email) {
-        showMessage('You need a valid email on your account to reset your password.', 'error');
-        return;
-      }
-      try {
-        await sendPasswordResetEmail(auth, user.email);
-        showMessage('Password reset email sent to ' + user.email, 'success');
-      } catch (err) {
-        console.error('Password reset failed', err);
-        showMessage('Could not send password reset email. Please try again later.', 'error');
-      }
+  const url = new URL(DISCORD_LOGIN_URL);
+  url.searchParams.set('uid', user.uid);
+  window.location.href = url.toString();
+});
+
+refreshBtn?.addEventListener('click', () => {
+  const user = auth.currentUser;
+  if (user) loadProfileData(user);
+});
+
+unlinkBtn?.addEventListener('click', async () => {
+  const user = auth.currentUser;
+  if (!user) return;
+  if (!confirm('Unlink your Discord account from SkyHigh? Your server role may be removed.')) return;
+  try {
+    const ref = doc(db, 'joinApplications', user.uid);
+    await updateDoc(ref, {
+      discordLinked: false,
+      discordUserId: deleteField(),
+      discordUsername: deleteField(),
+      discordAvatar: deleteField(),
+      discordRoleSynced: false
     });
+    showMsg(dcMsg, 'Discord unlinked from this account.', 'info');
+    await loadProfileData(user);
+  } catch(err) {
+    console.error('Unlink error', err);
+    showMsg(dcMsg, 'Failed to unlink Discord. Try again.', 'error');
   }
+});
+
+// ── AUTH GATE ─────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async user => {
+  if (!user) { window.location.replace('login.html'); return; }
+
+  const displayName = user.displayName || '';
+  const email       = user.email || '';
+  if (nameEl)   nameEl.textContent   = displayName || 'SkyHigh Member';
+  if (emailEl)  emailEl.textContent  = email;
+  if (avatarEl) avatarEl.textContent = initialsFromName(displayName, email);
+
+  // Nav menu
+  if (profileName) profileName.textContent = displayName || email;
+  if (profileLink) profileLink.hidden = false;
+  if (loginLink)   loginLink.hidden   = true;
+  if (logoutLink)  logoutLink.hidden  = false;
+
+  // Check staff
+  try {
+    const snap = await getDoc(doc(db, 'joinApplications', user.uid));
+    if (snap.exists() && snap.data().hqStaff === true && staffDashLink) {
+      staffDashLink.hidden = false;
+    }
+  } catch(e){}
+
+  await loadProfileData(user);
+});
+
+// Logout & reset
+logoutBtn?.addEventListener('click', async () => {
+  try { await signOut(auth); window.location.replace('index.html'); }
+  catch(err) { console.error(err); }
+});
+
+resetBtn?.addEventListener('click', async () => {
+  const user = auth.currentUser;
+  if (!user || !user.email) return;
+  try {
+    await sendPasswordResetEmail(auth, user.email);
+    if (msgBox) { msgBox.textContent = 'Reset email sent to ' + user.email; msgBox.className = 'success'; msgBox.hidden = false; }
+  } catch(err) {
+    if (msgBox) { msgBox.textContent = 'Could not send reset email.'; msgBox.className = 'error'; msgBox.hidden = false; }
+  }
+});
 </script>
 </body>
 </html>
