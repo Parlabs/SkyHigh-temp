@@ -35,7 +35,7 @@ body{font-family:var(--font-body);background:var(--c4);color:var(--text);min-hei
 <script type="module">
 import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js';
-import { getFirestore, doc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js';
+import { getFirestore, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyAdvM-qqfy5XXPNom8bRvVt4LXSG8818fw',
@@ -66,11 +66,11 @@ function showError(text) {
   doneBtn.style.display = 'inline-block';
 }
 
-function showSuccess(displayName) {
+function showSuccess(username) {
   if (spinnerEl) spinnerEl.style.display = 'none';
   statusEl.textContent  = 'Discord linked!';
   subEl.textContent     = 'Your SkyHigh member role will be applied shortly.';
-  msgEl.textContent     = 'Linked as ' + displayName + '. Head back to your profile to check your status.';
+  msgEl.textContent     = 'Linked as ' + username + '. Head back to your profile to check your status.';
   msgEl.className       = 'msg success show';
   doneBtn.style.display = 'inline-block';
 }
@@ -84,7 +84,6 @@ const passedUid = params.get('uid');
 // Discord data from worker (already URL-decoded by browser)
 const discordId = params.get('discordId');
 const discordUsername = params.get('discordUsername');
-const discordDisplay = params.get('discordDisplay');
 const discordAvatar = params.get('discordAvatar');
 const roleSynced = params.get('roleSynced') === '1';
 
@@ -100,20 +99,20 @@ if (status === 'error' || errorMsg) {
     }
     try {
       const ref = doc(db, 'joinApplications', uid);
-      await updateDoc(ref, {
+      // Use setDoc with merge to update only Discord fields
+      await setDoc(ref, {
         discordLinked: true,
         discordUserId: discordId,
         discordUsername: discordUsername,
-        discordDisplayName: discordDisplay || discordUsername,
         discordAvatar: discordAvatar || null,
         discordRoleSynced: roleSynced,
         discordLinkedAt: serverTimestamp()
-      });
-      // Show the display name (preferred) or username as fallback
-      showSuccess(discordDisplay || discordUsername);
+      }, { merge: true });
+      
+      showSuccess(discordUsername);
     } catch(err) {
       console.error('Firestore write failed', err);
-      showError('Account found but failed to save Discord link: ' + err.message);
+      showError('Failed to save Discord link: ' + err.message);
     }
   });
 } else {
