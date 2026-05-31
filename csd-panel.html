@@ -1,0 +1,1481 @@
+<!--
+  ╔══════════════════════════════════════════════════════════════════════╗
+  ║  SkyHigh Network — Community Services Department Panel              ║
+  ║  File: csd-panel.html  ·  Ref: CSD-SOP-01                          ║
+  ╠══════════════════════════════════════════════════════════════════════╣
+  ║  INTEGRATION CHECKLIST                                              ║
+  ║                                                                     ║
+  ║  1. FIREBASE CONFIG                                                 ║
+  ║     Replace the firebaseConfig object near the bottom of this file  ║
+  ║     with the SAME values used in staff-dashboard.html.              ║
+  ║                                                                     ║
+  ║  2. ADD CSD LINK TO staff-dashboard.html NAV                        ║
+  ║     Find the <ul class="nav-links"> block and add:                  ║
+  ║       <li><a href="csd-panel.html">CSD</a></li>                     ║
+  ║                                                                     ║
+  ║  3. FIRESTORE SECURITY RULES                                        ║
+  ║     Add these rules to your firebase.rules / Firestore console:     ║
+  ║                                                                     ║
+  ║     match /tickets/{ticketId} {                                     ║
+  ║       allow read, write: if request.auth != null;                   ║
+  ║       match /responses/{responseId} {                               ║
+  ║         allow read, write: if request.auth != null;                 ║
+  ║       }                                                             ║
+  ║     }                                                               ║
+  ║                                                                     ║
+  ║     Tip: replace `request.auth != null` with your existing          ║
+  ║     isStaff() helper function if you have one.                      ║
+  ║                                                                     ║
+  ║  4. FIRESTORE DATA MODEL                                            ║
+  ║     tickets/{ticketId}                                              ║
+  ║       subject, memberName, memberCID?, memberEmail?,                ║
+  ║       category, description?, status, assignedTo:{uid,name}|null,   ║
+  ║       createdBy:{uid,name}, createdAt, updatedAt                    ║
+  ║                                                                     ║
+  ║     tickets/{ticketId}/responses/{responseId}                       ║
+  ║       agentName, agentUid, content, templateUsed?,                  ║
+  ║       isInternal (false=public reply | true=CSD internal note),     ║
+  ║       timestamp                                                     ║
+  ╚══════════════════════════════════════════════════════════════════════╝
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Icons (same set as staff-dashboard.html) -->
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSD Panel • SkyHigh Network</title>
+
+  <!-- Same fonts as staff-dashboard.html -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ============================================================
+       RESET & BASE (identical tokens to staff-dashboard.html)
+       ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --c1: #0f2535;
+      --c2: #25562d;
+      --c3: #8cc576;
+      --c4: #0e1a26;
+      --c5: #193247;
+      --glass:     rgba(15, 37, 53, 0.55);
+      --glass2:    rgba(14, 26, 38, 0.80);
+      --border:    rgba(140, 197, 118, 0.14);
+      --border-hi: rgba(140, 197, 118, 0.28);
+      --text:      #d0e8d8;
+      --muted:     #6a9a7e;
+      --font-head: "Plus Jakarta Sans", sans-serif;
+      --font-body: "Lexend", sans-serif;
+      /* CSD status palette */
+      --s-open:    #ffcc5e;  --s-open-bg:    rgba(255, 204, 94,  0.12);
+      --s-prog:    #5eb4ff;  --s-prog-bg:    rgba( 94, 180, 255, 0.12);
+      --s-res:     #8cc576;  --s-res-bg:     rgba(140, 197, 118, 0.12);
+      --s-closed:  #6a9a7e;  --s-closed-bg:  rgba(106, 154, 126, 0.10);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--c4);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.6;
+      height: 100vh;
+      overflow: hidden; /* workspace handles its own scroll */
+    }
+
+    /* ============================================================
+       BACKGROUND CANVAS
+       ============================================================ */
+    .bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .bg-orb    { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.28; }
+    .orb1 { width:700px; height:500px; background: radial-gradient(circle,#25562d,transparent 70%); top:-100px; left:-200px; animation: float1 22s ease-in-out infinite alternate; }
+    .orb2 { width:600px; height:600px; background: radial-gradient(circle,#0f2535,transparent 70%); bottom:0; right:-150px; animation: float2 18s ease-in-out infinite alternate; }
+    .orb3 { width:400px; height:300px; background: radial-gradient(circle,rgba(140,197,118,.3),transparent 70%); top:40px; left:40px; animation: float3 26s ease-in-out infinite alternate; }
+    @keyframes float1 { to { transform: translate(60px,80px);   } }
+    @keyframes float2 { to { transform: translate(-80px,-60px); } }
+    @keyframes float3 { to { transform: translate(40px,-40px);  } }
+
+    .radar-bg { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:0; pointer-events:none; opacity:0.04; }
+    .radar-bg circle { fill:none; stroke:var(--c3); stroke-width:1; }
+    .radar-bg line   { stroke:var(--c3); stroke-width:1; }
+
+    /* ============================================================
+       NAV (identical to staff-dashboard.html)
+       ============================================================ */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      height: 64px; display: flex; align-items: center; padding: 0 40px; gap: 0;
+      background: rgba(14,26,38,.7); backdrop-filter: blur(24px) saturate(160%);
+      border-bottom: 1px solid var(--border-hi); box-shadow: 0 4px 32px rgba(0,0,0,.35);
+    }
+    .nav-logo { display:flex; align-items:center; gap:12px; text-decoration:none; flex-shrink:0; margin-right:auto; }
+    .nav-logo-badge { width:36px; height:36px; border-radius:8px; display:grid; place-items:center; }
+    .nav-logo-badge img { width:36px; height:36px; }
+    .nav-logo-text { font-family:var(--font-head); font-weight:700; font-size:16px; color:var(--text); line-height:1.1; }
+    .nav-logo-sub  { font-size:10px; font-weight:400; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; }
+    .nav-links { display:flex; align-items:center; gap:4px; list-style:none; }
+    .nav-links a { display:block; padding:8px 14px; font-size:13.5px; font-weight:500; color:var(--muted); text-decoration:none; border-radius:8px; transition:color .2s,background .2s; letter-spacing:.01em; }
+    .nav-links a:hover { color:var(--text); background:rgba(140,197,118,.08); }
+    .nav-links a.active { color:var(--c3); }
+    .nav-profile { position:relative; margin-left:12px; }
+    .profile-btn { width:34px; height:34px; border-radius:50%; border:1px solid var(--border-hi); background:rgba(15,37,53,.8); display:grid; place-items:center; cursor:pointer; color:var(--muted); transition:background .2s,color .2s,box-shadow .2s; }
+    .profile-btn svg { width:18px; height:18px; stroke:currentColor; stroke-width:1.6; fill:none; }
+    .profile-btn:hover { background:rgba(140,197,118,.12); color:var(--c3); box-shadow:0 0 12px rgba(140,197,118,.3); }
+    .profile-menu { position:absolute; top:42px; right:0; min-width:180px; background:rgba(14,26,38,.96); border-radius:12px; border:1px solid var(--border-hi); box-shadow:0 8px 28px rgba(0,0,0,.6); padding:8px 0; backdrop-filter:blur(18px); z-index:1200; }
+    .profile-menu[hidden] { display:none; }
+    .profile-menu-header { padding:8px 14px 6px; font-size:12px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
+    .profile-menu-item { width:100%; text-align:left; padding:8px 14px; border:none; background:transparent; color:var(--text); font-family:var(--font-body); font-size:13px; cursor:pointer; display:block; transition:background .15s,color .15s; }
+    .profile-menu-item:hover { background:rgba(140,197,118,.12); color:var(--c3); }
+
+    /* ============================================================
+       PAGE SHELL  — fills viewport, header + 3-panel workspace
+       ============================================================ */
+    .page-shell {
+      position: relative; z-index: 1;
+      display: flex; flex-direction: column;
+      height: 100vh;
+      padding: 72px 20px 12px;
+    }
+
+    .page-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 4px 10px;
+      flex-shrink: 0;
+    }
+    .page-header-left { flex: 1; }
+    .page-eyebrow { font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--c3); margin-bottom:2px; }
+    .page-title   { font-family:var(--font-head); font-size:clamp(18px,2.5vw,26px); font-weight:800; line-height:1.15; }
+
+    /* ============================================================
+       CARD BASE
+       ============================================================ */
+    .card {
+      background: var(--glass2);
+      border-radius: 16px;
+      border: 1px solid var(--border-hi);
+      box-shadow: 0 18px 50px rgba(0,0,0,.55);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .card-header {
+      display: flex; justify-content:space-between; align-items:center;
+      padding: 12px 14px 10px;
+      border-bottom: 1px solid var(--border);
+      gap: 8px; flex-shrink: 0;
+    }
+    .card-title { font-family:var(--font-head); font-size:13.5px; font-weight:700; }
+    .card-sub   { font-size:11.5px; color:var(--muted); margin-top:1px; }
+
+    /* ============================================================
+       BUTTONS
+       ============================================================ */
+    .btn {
+      border-radius:10px; border:1px solid rgba(140,197,118,.45);
+      background:linear-gradient(135deg,#8cc576,#3d8a35);
+      color:#0e1a26; font-size:13px; font-weight:600;
+      padding:7px 13px; cursor:pointer;
+      display:inline-flex; align-items:center; gap:5px;
+      transition:transform .15s,box-shadow .15s;
+      font-family:var(--font-body); white-space:nowrap;
+    }
+    .btn:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 0 20px rgba(140,197,118,.45); }
+    .btn:disabled { opacity:.45; cursor:not-allowed; transform:none !important; }
+    .btn-ghost   { background:transparent; color:var(--text); border-color:rgba(140,197,118,.35); }
+    .btn-ghost:hover:not(:disabled) { background:rgba(140,197,118,.1); color:var(--c3); box-shadow:none; }
+    .btn-blue    { background:transparent; border-color:rgba(94,180,255,.4); color:#a8d8ff; }
+    .btn-blue:hover:not(:disabled) { background:rgba(94,180,255,.12); box-shadow:none; }
+    .btn-yellow  { background:transparent; border-color:rgba(255,204,94,.4); color:#ffe099; }
+    .btn-yellow:hover:not(:disabled) { background:rgba(255,204,94,.12); box-shadow:none; }
+    .btn-danger  { background:rgba(220,68,68,.15); border-color:rgba(255,110,110,.6); color:#ffb3b3; }
+    .btn-danger:hover:not(:disabled) { background:rgba(220,68,68,.25); box-shadow:none; }
+    .btn-sm  { padding:5px 10px; font-size:12px; }
+    .btn-xs  { padding:3px 8px;  font-size:11px; }
+    .btn-icon { padding:5px; border-radius:8px; }
+
+    /* ============================================================
+       PILLS
+       ============================================================ */
+    .pill         { font-size:10.5px; padding:2px 8px; border-radius:999px; border:1px solid rgba(140,197,118,.4); color:var(--c3); text-transform:uppercase; letter-spacing:.08em; white-space:nowrap; }
+    .pill-open    { border-color:rgba(255,204,94,.5);  color:var(--s-open);   background:var(--s-open-bg);   }
+    .pill-prog    { border-color:rgba(94,180,255,.5);  color:var(--s-prog);   background:var(--s-prog-bg);   }
+    .pill-res     { border-color:rgba(140,197,118,.5); color:var(--s-res);    background:var(--s-res-bg);    }
+    .pill-closed  { border-color:rgba(106,154,126,.35);color:var(--s-closed); background:var(--s-closed-bg); }
+    .pill-csd     { border-color:rgba(94,180,255,.4);  color:#a8d8ff;         background:rgba(94,180,255,.1); }
+
+    /* ============================================================
+       FORM ELEMENTS
+       ============================================================ */
+    input, textarea, select {
+      border-radius:9px; border:1px solid rgba(140,197,118,.3);
+      background:rgba(5,15,23,.95);
+      padding:6px 10px; font-size:13px; color:var(--text);
+      font-family:var(--font-body); outline:none;
+      transition:border-color .2s, box-shadow .2s;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color:var(--c3);
+      box-shadow:0 0 0 1px rgba(140,197,118,.35);
+    }
+    select option { background:#0e1a26; }
+    textarea { resize:vertical; }
+    label { font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); display:block; margin-bottom:3px; }
+
+    /* ============================================================
+       MESSAGE STRIP
+       ============================================================ */
+    .msg-strip { font-size:12px; padding:6px 10px; border-radius:8px; border:1px solid transparent; display:none; align-items:center; gap:6px; }
+    .msg-strip.error   { display:flex; border-color:rgba(255,110,110,.4); background:rgba(220,68,68,.15);   color:#ffb3b3; }
+    .msg-strip.success { display:flex; border-color:rgba(140,197,118,.4); background:rgba(140,197,118,.15); color:#e3f8dd; }
+    .msg-strip.info    { display:flex; border-color:rgba(94,180,255,.4);  background:rgba(94,180,255,.1);   color:#a8d8ff; }
+    .msg-strip.warn    { display:flex; border-color:rgba(255,204,94,.4);  background:rgba(255,204,94,.1);   color:#ffe099; }
+    .msg-strip svg { flex-shrink:0; }
+
+    /* ============================================================
+       SPINNER
+       ============================================================ */
+    .spinner { width:13px; height:13px; border:2px solid rgba(140,197,118,.25); border-top-color:var(--c3); border-radius:50%; animation:spin .65s linear infinite; display:inline-block; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* ============================================================
+       SCROLLBARS
+       ============================================================ */
+    ::-webkit-scrollbar { width:5px; height:5px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+    ::-webkit-scrollbar-thumb { background:var(--c5); border-radius:3px; }
+    ::-webkit-scrollbar-thumb:hover { background:var(--c2); }
+
+    /* ============================================================
+       THREE-PANEL CSD WORKSPACE
+       ============================================================ */
+    .csd-workspace {
+      flex: 1; min-height: 0;
+      display: grid;
+      grid-template-columns: 268px 1fr 376px;
+      gap: 14px;
+      overflow: hidden;
+    }
+
+    /* ========== LEFT: TICKET QUEUE ========== */
+    .csd-queue { }
+
+    .filter-tabs { display:flex; gap:3px; padding:9px 10px 0; flex-shrink:0; flex-wrap:wrap; }
+    .tab-btn {
+      font-size:11.5px; font-weight:600; padding:4px 10px;
+      border-radius:7px; border:1px solid transparent;
+      background:transparent; color:var(--muted);
+      cursor:pointer; transition:all .15s; font-family:var(--font-body);
+    }
+    .tab-btn:hover { background:rgba(140,197,118,.08); color:var(--text); }
+    .tab-btn.active { background:rgba(140,197,118,.14); border-color:rgba(140,197,118,.28); color:var(--c3); }
+
+    .queue-search { padding:7px 10px; flex-shrink:0; }
+    .queue-search input { width:100%; padding:5px 10px; font-size:12.5px; border-radius:999px; }
+
+    .queue-list { flex:1; overflow-y:auto; padding:0 5px 8px; }
+
+    .ticket-item {
+      display:flex; flex-direction:column; gap:3px;
+      padding:9px 9px 8px; margin-bottom:2px;
+      border-radius:11px; border:1px solid transparent;
+      cursor:pointer; transition:background .15s,border-color .15s;
+      background:rgba(5,15,23,.45);
+    }
+    .ticket-item:hover    { background:rgba(140,197,118,.07); border-color:var(--border); }
+    .ticket-item.selected { background:rgba(140,197,118,.12); border-color:rgba(140,197,118,.32); }
+    .ticket-item-top  { display:flex; align-items:flex-start; gap:6px; }
+    .ticket-subject   { font-size:12.5px; font-weight:600; flex:1; line-height:1.3; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+    .ticket-item-meta { display:flex; align-items:center; justify-content:space-between; }
+    .ticket-member    { font-size:11px; color:var(--muted); }
+    .ticket-time      { font-size:10.5px; color:var(--muted); opacity:.7; }
+
+    .queue-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; height:160px; color:var(--muted); font-size:13px; gap:8px; }
+    .queue-empty svg { opacity:.3; }
+
+    /* ========== CENTER: THREAD ========== */
+    .csd-thread { }
+
+    .thread-placeholder {
+      flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+      color:var(--muted); gap:10px; text-align:center; padding:40px;
+    }
+    .thread-placeholder svg { opacity:.2; }
+    .thread-placeholder p { font-size:13px; max-width:200px; line-height:1.5; }
+
+    .thread-header {
+      padding:11px 15px 9px;
+      border-bottom:1px solid var(--border);
+      flex-shrink:0; display:none; flex-direction:column; gap:6px;
+    }
+    .thread-title-row { display:flex; align-items:flex-start; gap:8px; flex-wrap:wrap; }
+    .thread-title     { font-family:var(--font-head); font-size:14.5px; font-weight:700; flex:1; }
+    .thread-meta-row  { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .thread-meta-item { font-size:11.5px; color:var(--muted); display:flex; align-items:center; gap:3px; }
+    .thread-meta-item svg { flex-shrink:0; }
+    .thread-actions   { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+
+    .thread-body { flex:1; overflow-y:auto; padding:12px 14px; display:none; flex-direction:column; gap:10px; }
+
+    .msg-bubble { display:flex; flex-direction:column; gap:4px; max-width:94%; }
+    .msg-bubble.agent-msg  { align-self:flex-end; align-items:flex-end; }
+    .msg-bubble.system-msg { align-self:center; align-items:center; }
+
+    .bubble-body {
+      padding:9px 12px; border-radius:13px;
+      font-size:13px; line-height:1.55;
+      border:1px solid var(--border); background:rgba(5,15,23,.75);
+      white-space:pre-wrap; max-width:100%;
+    }
+    .agent-msg .bubble-body  { background:rgba(37,86,45,.3); border-color:rgba(140,197,118,.22); }
+    .bubble-meta { font-size:10.5px; color:var(--muted); display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .bubble-name { font-weight:600; color:var(--text); }
+    .bubble-tmpl { font-size:9.5px; background:rgba(140,197,118,.1); color:var(--c3); padding:1px 6px; border-radius:4px; border:1px solid rgba(140,197,118,.25); }
+    .thread-empty { color:var(--muted); font-size:13px; text-align:center; padding:28px 16px; }
+
+    /* ========== RIGHT: COMPOSER + NOTES ========== */
+    .csd-composer { }
+
+    .panel-locked {
+      flex:1; display:flex; align-items:center; justify-content:center;
+      flex-direction:column; gap:8px; color:var(--muted);
+      font-size:13px; text-align:center; padding:24px;
+    }
+    .panel-locked svg { opacity:.25; }
+
+    #composer-active { display:none; flex-direction:column; flex:1; min-height:0; }
+
+    .c-tabs { display:flex; border-bottom:1px solid var(--border); flex-shrink:0; }
+    .c-tab {
+      flex:1; padding:9px 10px; font-size:12.5px; font-weight:600;
+      background:transparent; border:none; color:var(--muted); cursor:pointer;
+      transition:color .15s,background .15s; font-family:var(--font-body);
+      border-bottom:2px solid transparent; display:flex; align-items:center; justify-content:center; gap:5px;
+    }
+    .c-tab.active { color:var(--c3); border-bottom-color:var(--c3); background:rgba(140,197,118,.05); }
+    .c-tab:hover:not(.active) { color:var(--text); background:rgba(140,197,118,.04); }
+    .c-tab svg { flex-shrink:0; }
+
+    .c-panel { display:none; flex-direction:column; flex:1; min-height:0; padding:11px 12px 10px; gap:9px; overflow-y:auto; }
+    .c-panel.active { display:flex; }
+
+    /* — Response panel — */
+    .tmpl-row { display:flex; gap:6px; align-items:stretch; }
+    .tmpl-row select { flex:1; }
+
+    .response-area { width:100%; min-height:200px; max-height:300px; font-size:13px; line-height:1.58; padding:9px 11px; }
+
+    .ph-warning {
+      font-size:12px; padding:6px 9px; border-radius:8px;
+      border:1px solid rgba(255,204,94,.4); background:rgba(255,204,94,.08);
+      color:#ffe099; display:none; align-items:center; gap:6px;
+    }
+    .ph-warning.visible { display:flex; }
+    .ph-warning svg { flex-shrink:0; }
+
+    .send-footer { display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+    .status-row { display:flex; align-items:center; gap:5px; }
+    .status-row label { margin:0; font-size:11px; color:var(--muted); white-space:nowrap; }
+    .status-row select { padding:4px 7px; font-size:12px; border-radius:8px; }
+
+    /* Staff reminder bar */
+    .staff-reminder {
+      font-size:11px; padding:6px 9px; border-radius:8px;
+      border:1px solid rgba(140,197,118,.18); background:rgba(140,197,118,.05);
+      color:var(--muted); line-height:1.4; flex-shrink:0;
+    }
+    .staff-reminder strong { color:var(--c3); }
+
+    /* — Notes panel — */
+    .notes-info { font-size:11.5px; color:var(--muted); flex-shrink:0; padding-bottom:4px; }
+    .notes-thread { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:6px; min-height:60px; }
+    .note-empty { color:var(--muted); font-size:12px; font-style:italic; text-align:center; padding:14px; }
+
+    .note-msg { display:flex; flex-direction:column; gap:3px; }
+    .note-head { display:flex; align-items:center; gap:7px; }
+    .note-author { font-size:12px; font-weight:600; color:var(--c3); }
+    .note-me .note-author { color:#a8d8ff; }
+    .note-time  { font-size:10.5px; color:var(--muted); }
+    .note-body  { font-size:12.5px; line-height:1.5; padding:6px 10px; border-radius:9px; background:rgba(15,37,53,.75); border:1px solid rgba(94,180,255,.18); white-space:pre-wrap; }
+    .note-me .note-body { background:rgba(20,45,72,.8); border-color:rgba(94,180,255,.28); }
+
+    .sep { height:1px; background:var(--border); flex-shrink:0; }
+
+    .notes-compose { display:flex; gap:6px; align-items:flex-end; flex-shrink:0; }
+    .notes-compose textarea { flex:1; min-height:52px; max-height:100px; font-size:12.5px; resize:none; padding:7px 9px; }
+
+    /* ============================================================
+       OVERLAY MODAL
+       ============================================================ */
+    .overlay {
+      position:fixed; inset:0; z-index:2000;
+      background:rgba(8,16,24,.78); backdrop-filter:blur(8px);
+      display:flex; align-items:center; justify-content:center; padding:24px;
+    }
+    .modal {
+      background:rgba(14,26,38,.97); border:1px solid var(--border-hi);
+      border-radius:18px; padding:24px; width:100%; max-width:500px;
+      box-shadow:0 24px 64px rgba(0,0,0,.85);
+    }
+    .modal-title { font-family:var(--font-head); font-size:16px; font-weight:800; margin-bottom:16px; }
+    .modal-fields { display:flex; flex-direction:column; gap:10px; }
+    .modal-row { display:flex; gap:10px; }
+    .modal-row > div { flex:1; }
+    .modal-row > div input, .modal-row > div select { width:100%; }
+    .modal-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:16px; }
+
+    /* ============================================================
+       MISC UTILITIES
+       ============================================================ */
+    .flex  { display:flex; }
+    .flex-row { display:flex; align-items:center; gap:8px; }
+    .flex-1   { flex:1; }
+    .muted    { color:var(--muted); }
+    .text-sm  { font-size:12.5px; }
+    .sr-only  { position:absolute; width:1px; height:1px; clip:rect(0,0,0,0); overflow:hidden; }
+
+    /* ============================================================
+       RESPONSIVE
+       ============================================================ */
+    @media (max-width:1140px) {
+      .csd-workspace { grid-template-columns: 248px 1fr 340px; }
+    }
+    @media (max-width:900px) {
+      nav { padding: 0 16px; }
+      .page-shell { padding: 72px 12px 10px; overflow-y:auto; }
+      .csd-workspace {
+        grid-template-columns: 1fr;
+        grid-template-rows: 220px auto auto;
+        overflow:visible;
+        height:auto;
+      }
+      body { overflow:auto; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── BACKGROUND ──────────────────────────────────────────────── -->
+<div class="bg-canvas">
+  <div class="bg-orb orb1"></div>
+  <div class="bg-orb orb2"></div>
+  <div class="bg-orb orb3"></div>
+</div>
+<svg class="radar-bg" width="900" height="900" viewBox="0 0 900 900">
+  <circle cx="450" cy="450" r="100"/><circle cx="450" cy="450" r="200"/>
+  <circle cx="450" cy="450" r="300"/><circle cx="450" cy="450" r="400"/>
+  <line x1="450" y1="150" x2="450" y2="750"/><line x1="150" y1="450" x2="750" y2="450"/>
+</svg>
+
+<!-- ── NAV ─────────────────────────────────────────────────────── -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-badge"><img src="icon-512.png" alt="SkyHigh logo"></div>
+    <div>
+      <div class="nav-logo-text">SkyHigh Network</div>
+      <div class="nav-logo-sub">CSD Panel</div>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="staff-dashboard.html">Staff Dashboard</a></li>
+    <li><a href="#" class="active">CSD</a></li>
+  </ul>
+  <div class="nav-profile">
+    <button class="profile-btn" id="profile-btn" aria-haspopup="true" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.3 2.7-6 6-6h4c3.3 0 6 2.7 6 6"/></svg>
+    </button>
+    <div class="profile-menu" id="profile-menu" hidden>
+      <div class="profile-menu-header" id="profile-name">Not signed in</div>
+      <button type="button" class="profile-menu-item" id="go-staff-btn" hidden>Staff Dashboard</button>
+      <button type="button" class="profile-menu-item" id="login-btn">Log in</button>
+      <button type="button" class="profile-menu-item" id="logout-btn" hidden>Log out</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ── PAGE SHELL ─────────────────────────────────────────────── -->
+<div class="page-shell">
+
+  <!-- Header bar -->
+  <header class="page-header">
+    <div class="page-header-left">
+      <div class="page-eyebrow">Community Services Department · CSD-SOP-01</div>
+      <h1 class="page-title">Ticket Management</h1>
+    </div>
+    <div class="flex-row">
+      <span class="pill pill-csd" id="agent-badge" style="display:none">Agent: —</span>
+      <button class="btn btn-sm" id="new-ticket-btn" style="display:none">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Ticket
+      </button>
+    </div>
+  </header>
+
+  <div id="auth-msg" class="msg-strip info" style="margin-bottom:10px;">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    Please sign in to use the CSD panel.
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       THREE-PANEL WORKSPACE
+       ══════════════════════════════════════════════════ -->
+  <div class="csd-workspace">
+
+    <!-- ──────────────── PANEL 1: QUEUE ──────────────── -->
+    <aside class="card csd-queue" id="queue-panel">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Ticket Queue</div>
+          <div class="card-sub" id="queue-count">Loading…</div>
+        </div>
+        <button class="btn btn-ghost btn-icon" id="reload-btn" title="Refresh queue" aria-label="Refresh queue">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        </button>
+      </div>
+
+      <div class="filter-tabs" id="filter-tabs" role="tablist" aria-label="Filter by status">
+        <button class="tab-btn active" data-filter="all"         role="tab">All</button>
+        <button class="tab-btn"        data-filter="open"        role="tab">Open</button>
+        <button class="tab-btn"        data-filter="in_progress" role="tab">In&nbsp;Progress</button>
+        <button class="tab-btn"        data-filter="resolved"    role="tab">Resolved</button>
+      </div>
+
+      <div class="queue-search">
+        <input type="search" id="queue-search" placeholder="Search tickets, members…" autocomplete="off" aria-label="Search tickets">
+      </div>
+
+      <div class="queue-list" id="queue-list" role="listbox" aria-label="Ticket queue">
+        <div class="queue-empty">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>No tickets yet</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ──────────────── PANEL 2: THREAD ─────────────── -->
+    <main class="card csd-thread" id="thread-panel" aria-label="Ticket conversation thread">
+
+      <!-- Empty state -->
+      <div class="thread-placeholder" id="thread-placeholder">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <p>Select a ticket from the queue to view the conversation</p>
+      </div>
+
+      <!-- Header (shown when a ticket is open) -->
+      <div class="thread-header" id="thread-header">
+        <div class="thread-title-row">
+          <div class="thread-title" id="thread-subj">—</div>
+          <span class="pill" id="thread-status-badge">—</span>
+        </div>
+        <div class="thread-meta-row" id="thread-meta"></div>
+        <div class="thread-actions" id="thread-actions"></div>
+      </div>
+
+      <!-- Conversation thread -->
+      <div class="thread-body" id="thread-body"></div>
+    </main>
+
+    <!-- ──────────────── PANEL 3: COMPOSER ───────────── -->
+    <aside class="card csd-composer" id="composer-panel" aria-label="Response composer">
+
+      <!-- Locked state -->
+      <div class="panel-locked" id="composer-locked">
+        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span>Select a ticket to respond or leave team notes</span>
+      </div>
+
+      <!-- Active composer (hidden until a ticket is selected) -->
+      <div id="composer-active" style="display:none;flex-direction:column;flex:1;min-height:0;">
+
+        <!-- Tab bar -->
+        <div class="c-tabs" role="tablist">
+          <button class="c-tab active" data-tab="respond" role="tab" aria-selected="true" id="tab-respond">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Respond
+          </button>
+          <button class="c-tab" data-tab="notes" role="tab" aria-selected="false" id="tab-notes">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Internal&nbsp;Notes
+          </button>
+        </div>
+
+        <!-- ── RESPOND TAB ── -->
+        <div class="c-panel active" id="panel-respond" role="tabpanel" aria-labelledby="tab-respond">
+
+          <div id="composer-msg" class="msg-strip"></div>
+
+          <!-- Template selector -->
+          <div>
+            <label for="tmpl-select">Response Template (CSD-SOP-01)</label>
+            <div class="tmpl-row">
+              <select id="tmpl-select" aria-label="Select a response template">
+                <option value="">— Choose a template —</option>
+                <optgroup label="📋 Initial Greetings">
+                  <option value="greeting_standard">Standard Greeting · General Enquiries</option>
+                  <option value="greeting_empathy">Empathy Greeting · Tech Issues / Complaints</option>
+                </optgroup>
+                <optgroup label="🔧 Account Modifications">
+                  <option value="mod_approved">Account Modification · Approved</option>
+                  <option value="mod_denied">Account Modification · Denied</option>
+                </optgroup>
+                <optgroup label="🚫 Suspensions &amp; Appeals">
+                  <option value="suspension_notice">Suspension Issuance Notice</option>
+                  <option value="appeal_accepted">Suspension Appeal · Accepted</option>
+                  <option value="appeal_denied">Suspension Appeal · Denied</option>
+                </optgroup>
+                <optgroup label="🔀 Ticket Management">
+                  <option value="transfer">Ticket Transfer · Wrong Department</option>
+                  <option value="escalation">Ticket Escalation · To Management</option>
+                  <option value="closure_inactivity">Ticket Closure · Inactivity</option>
+                  <option value="closure_resolved">Final Closure · Issue Resolved</option>
+                </optgroup>
+              </select>
+              <button class="btn btn-ghost btn-sm" id="load-tmpl-btn">Load</button>
+            </div>
+          </div>
+
+          <!-- Text editor -->
+          <div>
+            <div class="flex-row" style="margin-bottom:3px;">
+              <label for="response-text" style="margin:0;flex:1;">Response</label>
+              <button class="btn btn-ghost btn-xs" id="clear-btn">Clear</button>
+            </div>
+            <textarea class="response-area" id="response-text" placeholder="Select a template above, or type your response here…" aria-label="Response text"></textarea>
+          </div>
+
+          <!-- Placeholder warning -->
+          <div class="ph-warning" id="ph-warning" role="alert" aria-live="polite">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span id="ph-warning-text">Unfilled placeholders detected. Replace all (------) before sending.</span>
+          </div>
+
+          <!-- Send footer -->
+          <div class="send-footer">
+            <div class="status-row">
+              <label for="status-select">Set status:</label>
+              <select id="status-select" aria-label="Update ticket status after sending">
+                <option value="">No change</option>
+                <option value="in_progress">→ In Progress</option>
+                <option value="resolved">→ Resolved</option>
+                <option value="closed">→ Closed</option>
+              </select>
+            </div>
+            <div class="flex-1"></div>
+            <button class="btn btn-sm" id="send-btn" disabled>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              Send
+            </button>
+          </div>
+
+          <!-- Staff reminder (CSD-SOP-01) -->
+          <div class="staff-reminder">
+            <strong>Staff Reminder:</strong> For edge-case scenarios not covered by these templates, consult a <strong>Senior CSD member</strong> or Administrator in the staff Discord before responding.
+          </div>
+
+        </div><!-- /panel-respond -->
+
+        <!-- ── INTERNAL NOTES TAB ── -->
+        <div class="c-panel" id="panel-notes" role="tabpanel" aria-labelledby="tab-notes">
+          <p class="notes-info">Internal notes are <strong style="color:var(--s-prog);">only visible to CSD staff</strong>. Use this to discuss the ticket before or after responding.</p>
+          <div class="notes-thread" id="notes-thread" aria-live="polite" aria-label="Internal notes">
+            <div class="note-empty">No internal notes yet.</div>
+          </div>
+          <div class="sep"></div>
+          <div id="notes-msg" class="msg-strip"></div>
+          <div class="notes-compose">
+            <textarea id="note-input" placeholder="Write a team note… (Shift+Enter for new line, Enter to send)" aria-label="Internal note input" rows="2"></textarea>
+            <button class="btn btn-blue btn-sm" id="send-note-btn" disabled aria-label="Send note">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+        </div><!-- /panel-notes -->
+
+      </div><!-- /composer-active -->
+    </aside>
+
+  </div><!-- /csd-workspace -->
+</div><!-- /page-shell -->
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     FIREBASE · APP LOGIC
+     ══════════════════════════════════════════════════════════════
+
+  Firestore data model
+  ────────────────────
+  tickets/{ticketId}
+    subject, memberName, memberCID?, memberEmail?,
+    category, description?, status, assignedTo:{uid,name}|null,
+    createdBy:{uid,name}, createdAt, updatedAt,
+    lastResponseAt?, lastResponseBy?
+
+  tickets/{ticketId}/responses/{responseId}
+    agentName, agentUid, content, templateUsed?,
+    isInternal (false = public | true = CSD-only note),
+    timestamp
+-->
+<script type="module">
+/* ──────────────────────────────────────────────────────────────
+   FIREBASE INITIALISATION
+   ⚠️  Replace the firebaseConfig below with your project's values.
+       This must be the SAME project used in staff-dashboard.html.
+   ────────────────────────────────────────────────────────────── */
+import { initializeApp } from
+  'https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js';
+import { getAuth, onAuthStateChanged, GoogleAuthProvider,
+         signInWithPopup, signOut } from
+  'https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js';
+import { getFirestore, collection, doc, query, where,
+         orderBy, limit, onSnapshot, addDoc, updateDoc,
+         serverTimestamp } from
+  'https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "YOUR_API_KEY",
+  authDomain:        "YOUR_PROJECT.firebaseapp.com",
+  projectId:         "YOUR_PROJECT_ID",
+  storageBucket:     "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId:             "YOUR_APP_ID"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+/* ──────────────────────────────────────────────────────────────
+   TEMPLATE LIBRARY  ·  Source: CSD-SOP-01
+   Agent name is auto-inserted; all other (------) are for the
+   agent to fill manually before sending.
+   ────────────────────────────────────────────────────────────── */
+const TEMPLATES = {
+
+  greeting_standard: `Hello (------), my name is (------), one of the SkyHigh CSD staff members. Thank you for reaching out and opening a support ticket with us today.
+
+I would be more than happy to assist you with your request regarding (------). To help me get this sorted for you as quickly as possible, could you please provide me with your CID (if applicable) and any additional details about your request?
+
+Looking forward to getting this resolved for you!`,
+
+  greeting_empathy: `Hello (------), thank you for contacting the SkyHigh Support team. My name is (------), and I'll be assisting you with your ticket today.
+
+I understand you are having some trouble with (------), and I sincerely apologize for any inconvenience or frustration this has caused. We pride ourselves on providing a smooth experience here at SkyHigh, so let's get this fixed for you.
+
+To help me investigate the issue, please let me know:
+
+• What specific error message or issue are you seeing?
+• Any steps you've already tried to fix it.
+
+Once I have that information, I'll dive right in and see what's going on.`,
+
+  mod_approved: `Hello (------), thank you for contacting the SkyHigh Support team regarding your recent request to modify your account details.
+
+We are pleased to inform you that our helpdesk team has reviewed and processed your request. The requested changes have now been applied to your profile. Please take a moment to log in to your account and verify that all updated information is correct.
+
+At SkyHigh, we strive to provide a swift and seamless service, so if you notice any discrepancies or require further modifications to your details, please reply directly to this ticket and an agent will assist you promptly. Thank you for being a valued member of our community.`,
+
+  mod_denied: `Hello (------), thank you for taking the time to open a ticket with the SkyHigh Support team regarding your account modification request.
+
+After reviewing your request, we regret to inform you that we are unable to update your account details at this time. To ensure the security and integrity of all member profiles within SkyHigh, certain modifications require strict verification. Your request was unsuccessful due to one or more of the following reasons:
+
+⚠️  DELETE INAPPLICABLE REASONS BELOW BEFORE SENDING:
+• Security / Verification — The information provided does not match our security records for this account.
+• Missing Documentation — Additional proof or documentation (such as VATSIM/ATC ratings or ID verification) is required for this specific change.
+• Invalid Information — The requested modifications do not meet SkyHigh network formatting guidelines.
+
+If you are able to provide the correct verification or updated documentation, please reply directly to this ticket. We encourage you to reach out with any questions so we can help resolve this for you safely and securely.`,
+
+  suspension_notice: `Hello (------), this is an official notification from the SkyHigh Community Support Department (CSD).
+
+Following an internal review, we regret to inform you that your SkyHigh account has been officially suspended. This decision was made based on a direct violation of our community standards and network guidelines. Your suspension details are outlined below:
+
+Suspension Period: (------) Days / Permanent
+Eligible to Appeal: (------) Days from notice / Not Eligible
+
+⚠️  DELETE INAPPLICABLE REASONS BELOW BEFORE SENDING:
+• Behavior / Conduct — Disrespectful, toxic, or unprofessional behavior toward other members or staff within the SkyHigh community.
+• Operational Misconduct — Failure to adhere to standard ATC/pilot regulations and procedures during SkyHigh events or operations.
+• Community Disruption — Engaging in activities or sharing content that disrupts the peace, operations, or safety of our network platforms.
+
+We expect all SkyHigh members to maintain a high standard of maturity and professionalism. If you wish to appeal this decision, you may open a formal appeal ticket once your eligible waiting period has passed.`,
+
+  appeal_accepted: `Hello (------), thank you for taking the time to submit a formal appeal regarding your recent account suspension. The SkyHigh CSD and management teams have thoroughly reviewed your case file, previous history, and statement.
+
+We are pleased to inform you that your appeal has been successful. We appreciate your cooperation and your explanation regarding the incident. Your account restrictions have been lifted, and full access to the SkyHigh network and community platforms has been restored.
+
+We kindly remind you to familiarise yourself with our network policies to prevent future issues. Welcome back to the team.`,
+
+  appeal_denied: `Hello (------), thank you for taking the time to submit a formal appeal regarding your recent account suspension. The SkyHigh CSD and management teams have thoroughly reviewed your case file, previous history, and statement.
+
+We regret to inform you that your appeal has been unsuccessful at this time, and your suspension will remain in effect. This decision was made because the application lacked sufficient accountability, the violation was too severe, or insufficient time has passed since the initial infraction.
+
+We expect you to use the remainder of your suspension time to reflect on the community standards. Future infractions may result in a permanent ban from SkyHigh.`,
+
+  transfer: `Hello (------), thank you for opening a ticket with the SkyHigh Support team today.
+
+After reviewing your initial enquiry regarding (------), we have determined that this request falls outside the scope of the general Helpdesk/CSD. To ensure you receive the most accurate and swift assistance, we have officially transferred your ticket to the correct department.
+
+Ticket Transferred To: (------) Department (e.g. Training / Operations / Management / Media)
+
+You do not need to open a new ticket. Please remain patient as the specialised team reviews your file. A representative from that department will get back to you promptly, typically within 24 to 48 hours. Thank you for your patience and for supporting SkyHigh.`,
+
+  escalation: `Hello (------), thank you for reaching out to the SkyHigh Support team.
+
+Regarding your ongoing enquiry about (------), the complexity of this situation requires a higher level of authorisation. As a standard helpdesk agent is unable to resolve this directly, we have escalated your ticket to the SkyHigh Senior Management team.
+
+Escalation Level: Senior Staff / Network Administration
+
+Our management team handles tickets in the order they are received and will thoroughly review your case history before replying. Please keep this ticket open and refrain from creating duplicate requests, as this will slow down the process. We appreciate your patience while we ensure this is handled properly.`,
+
+  closure_inactivity: `Hello (------), this is a follow-up notification from the SkyHigh Support team regarding your open ticket.
+
+We reached out to you recently requesting further information regarding your enquiry, but we have not received a response within our standard 48/72-hour window. Because we have not heard back, we are going to mark this ticket as resolved and close it at this time.
+
+Closure Reason: Ticket closed due to user inactivity.
+
+If your issue was not fully resolved, or if you still require assistance from the CSD team, please do not hesitate to open a fresh ticket. We will be more than happy to pick up right where we left off. Thank you for your time and understanding.`,
+
+  closure_resolved: `Hello (------), thank you once again for contacting the SkyHigh Support team today.
+
+We are pleased that we were able to successfully resolve your enquiry regarding (------). As everything is now fully operational and sorted on your end, we will proceed with closing this support ticket.
+
+At SkyHigh, we pride ourselves on delivering a professional, friendly, and swift service. If you experience any new issues or have further questions down the road, please feel free to open a brand new ticket and our team will be ready to assist.
+
+Thank you for your continued support of the SkyHigh Network. Safe flying!`
+};
+
+const TEMPLATE_LABELS = {
+  greeting_standard:'Standard Greeting',  greeting_empathy:'Empathy Greeting',
+  mod_approved:'Mod Approved',            mod_denied:'Mod Denied',
+  suspension_notice:'Suspension Notice',  appeal_accepted:'Appeal Accepted',
+  appeal_denied:'Appeal Denied',          transfer:'Transfer',
+  escalation:'Escalation',               closure_inactivity:'Inactivity Closure',
+  closure_resolved:'Resolved Closure'
+};
+
+/* ──────────────────────────────────────────────────────────────
+   APP STATE
+   ────────────────────────────────────────────────────────────── */
+let currentUser   = null;
+let activeTicket  = null;   // { id, data }
+let allTickets    = [];
+let filterStatus  = 'all';
+let searchQuery   = '';
+let unsubQueue    = null;
+let unsubThread   = null;
+let unsubNotes    = null;
+
+/* ──────────────────────────────────────────────────────────────
+   AUTH
+   ────────────────────────────────────────────────────────────── */
+onAuthStateChanged(auth, user => {
+  currentUser = user;
+  syncAuthUI();
+  if (u) {
+    setMsg('auth-msg', '', '');
+    subscribeQueue();
+  } else {
+    setMsg('auth-msg', 'Please sign in to use the CSD panel.', 'info');
+    renderQueue([]);
+    el('queue-count').textContent = 'Sign in required';
+  }
+});
+
+function syncAuthUI() {
+  const u = currentUser;
+  const name = u ? (u.displayName || u.email || 'Agent') : null;
+
+  el('profile-name').textContent   = name || 'Not signed in';
+  el('login-btn').hidden           = !!u;
+  el('logout-btn').hidden          = !u;
+  el('go-staff-btn').hidden        = !u;
+  el('agent-badge').style.display  = u ? 'inline-block' : 'none';
+  el('agent-badge').textContent    = `Agent: ${name}`;
+  el('new-ticket-btn').style.display = u ? 'inline-flex' : 'none';
+  el('send-btn').disabled          = !u || !activeTicket;
+  el('send-note-btn').disabled     = !u || !activeTicket;
+}
+
+/* Profile menu toggle */
+el('profile-btn').addEventListener('click', () => {
+  const m = el('profile-menu');
+  m.hidden = !m.hidden;
+  el('profile-btn').setAttribute('aria-expanded', String(!m.hidden));
+});
+document.addEventListener('click', e => {
+  if (!el('profile-btn').contains(e.target) && !el('profile-menu').contains(e.target))
+    el('profile-menu').hidden = true;
+});
+
+el('login-btn').addEventListener('click', async () => {
+  try { await signInWithPopup(auth, new GoogleAuthProvider()); }
+  catch(e) { console.error('Login failed', e); }
+  el('profile-menu').hidden = true;
+});
+
+el('logout-btn').addEventListener('click', async () => {
+  await signOut(auth);
+  el('profile-menu').hidden = true;
+  activeTicket = null;
+  resetThread();
+  resetComposer();
+});
+
+el('go-staff-btn').addEventListener('click', () => { window.location.href = 'staff-dashboard.html'; });
+
+/* ──────────────────────────────────────────────────────────────
+   TICKET QUEUE
+   ────────────────────────────────────────────────────────────── */
+function subscribeQueue() {
+  if (unsubQueue) unsubQueue();
+  const q = query(
+    collection(db, 'tickets'),
+    orderBy('createdAt', 'desc'),
+    limit(100)
+  );
+  unsubQueue = onSnapshot(q, snap => {
+    allTickets = snap.docs.map(d => ({ id: d.id, data: d.data() }));
+    renderQueue(filtered());
+    updateCount();
+    /* Refresh active ticket header if it changed */
+    if (activeTicket) {
+      const updated = allTickets.find(t => t.id === activeTicket.id);
+      if (updated) { activeTicket = updated; renderThreadHeader(); }
+    }
+  }, err => {
+    console.error('Queue error', err);
+    el('queue-count').textContent = 'Error loading';
+  });
+}
+
+function filtered() {
+  return allTickets.filter(t => {
+    const d = t.data;
+    if (filterStatus !== 'all' && d.status !== filterStatus) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      return [(d.subject||''), (d.memberName||''), (d.memberCID||'')]
+        .some(s => s.toLowerCase().includes(q));
+    }
+    return true;
+  });
+}
+
+function updateCount() {
+  const shown = filtered().length;
+  const open  = allTickets.filter(t => t.data.status === 'open').length;
+  el('queue-count').textContent = `${shown} shown · ${open} open`;
+}
+
+function renderQueue(tickets) {
+  const list = el('queue-list');
+  if (!tickets.length) {
+    list.innerHTML = `<div class="queue-empty">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span>No tickets found</span></div>`;
+    return;
+  }
+  list.innerHTML = tickets.map(t => {
+    const d   = t.data;
+    const sel = activeTicket?.id === t.id ? ' selected' : '';
+    const st  = d.status || 'open';
+    const ts  = d.createdAt?.toDate ? timeAgo(d.createdAt.toDate()) : '';
+    return `<div class="ticket-item${sel}" data-id="${t.id}" role="option" tabindex="0"
+                 aria-selected="${sel ? 'true' : 'false'}">
+      <div class="ticket-item-top">
+        <div class="ticket-subject">${esc(d.subject || 'Untitled Ticket')}</div>
+        <span class="pill pill-${cssStatus(st)}" aria-label="Status: ${labelStatus(st)}">${labelStatus(st)}</span>
+      </div>
+      <div class="ticket-item-meta">
+        <span class="ticket-member">${esc(d.memberName || 'Unknown member')}</span>
+        <span class="ticket-time">${ts}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('.ticket-item').forEach(row => {
+    row.addEventListener('click', () => openTicket(row.dataset.id));
+    row.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openTicket(row.dataset.id); } });
+  });
+}
+
+/* ──────────────────────────────────────────────────────────────
+   OPEN TICKET
+   ────────────────────────────────────────────────────────────── */
+function openTicket(id) {
+  const t = allTickets.find(t => t.id === id);
+  if (!t) return;
+  activeTicket = t;
+  renderQueue(filtered()); /* re-render to highlight selection */
+  renderThreadHeader();
+  el('thread-body').style.display = 'flex';
+  el('thread-placeholder').style.display = 'none';
+  showComposer();
+  subscribeThread(id);
+  subscribeNotes(id);
+  el('send-btn').disabled      = !currentUser;
+  el('send-note-btn').disabled = !currentUser;
+}
+
+function renderThreadHeader() {
+  if (!activeTicket) return;
+  const d  = activeTicket.data;
+  const st = d.status || 'open';
+
+  el('thread-header').style.display = 'flex';
+  el('thread-subj').textContent = d.subject || 'Untitled Ticket';
+
+  const badge = el('thread-status-badge');
+  badge.textContent = labelStatus(st);
+  badge.className   = `pill pill-${cssStatus(st)}`;
+
+  /* Meta row */
+  el('thread-meta').innerHTML = [
+    `<span class="thread-meta-item"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${esc(d.memberName||'Unknown')}</span>`,
+    d.memberCID   ? `<span class="thread-meta-item">CID: ${esc(d.memberCID)}</span>` : '',
+    d.memberEmail ? `<span class="thread-meta-item">${esc(d.memberEmail)}</span>` : '',
+    d.category    ? `<span class="pill" style="font-size:10.5px;">${esc(d.category)}</span>` : ''
+  ].join('');
+
+  /* Claim / assignment */
+  const assigned   = d.assignedTo;
+  const isMe       = assigned?.uid === currentUser?.uid;
+  el('thread-actions').innerHTML = !assigned
+    ? `<button class="btn btn-yellow btn-xs" id="claim-btn">
+         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 20l5-5 5 5"/><path d="M12 15V3"/></svg>
+         Claim Ticket
+       </button>`
+    : `<span class="pill pill-${isMe ? 'res' : ''}" style="font-size:10.5px;">
+         ${isMe ? '✓ Assigned to you' : `Assigned: ${esc(assigned.name||'?')}`}
+       </span>
+       ${isMe ? `<button class="btn btn-ghost btn-xs" id="unclaim-btn">Release</button>` : ''}`;
+
+  el('claim-btn')?.addEventListener('click', claimTicket);
+  el('unclaim-btn')?.addEventListener('click', unclaimTicket);
+}
+
+async function claimTicket() {
+  if (!currentUser || !activeTicket) return;
+  try {
+    await updateDoc(doc(db, 'tickets', activeTicket.id), {
+      assignedTo: { uid: currentUser.uid, name: currentUser.displayName || currentUser.email || 'Agent' },
+      status:     activeTicket.data.status === 'open' ? 'in_progress' : activeTicket.data.status,
+      updatedAt:  serverTimestamp()
+    });
+  } catch(e) { console.error(e); }
+}
+
+async function unclaimTicket() {
+  if (!currentUser || !activeTicket) return;
+  try {
+    await updateDoc(doc(db, 'tickets', activeTicket.id), {
+      assignedTo: null, updatedAt: serverTimestamp()
+    });
+  } catch(e) { console.error(e); }
+}
+
+function showComposer() {
+  el('composer-locked').style.display  = 'none';
+  el('composer-active').style.display  = 'flex';
+}
+
+function resetComposer() {
+  el('composer-locked').style.display  = 'flex';
+  el('composer-active').style.display  = 'none';
+}
+
+function resetThread() {
+  el('thread-header').style.display    = 'none';
+  el('thread-body').style.display      = 'none';
+  el('thread-body').innerHTML          = '';
+  el('thread-placeholder').style.display = 'flex';
+}
+
+/* ──────────────────────────────────────────────────────────────
+   THREAD SUBSCRIPTION  (public responses, isInternal=false)
+   ────────────────────────────────────────────────────────────── */
+function subscribeThread(ticketId) {
+  if (unsubThread) { unsubThread(); unsubThread = null; }
+  const body = el('thread-body');
+  body.innerHTML = `<div style="display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;"><div class="spinner"></div>Loading thread…</div>`;
+
+  const q = query(
+    collection(db, 'tickets', ticketId, 'responses'),
+    where('isInternal', '==', false),
+    orderBy('timestamp', 'asc')
+  );
+  unsubThread = onSnapshot(q, snap => {
+    if (snap.empty) {
+      body.innerHTML = `<div class="thread-empty">No responses yet — be the first to reply using the composer.</div>`;
+      return;
+    }
+    body.innerHTML = snap.docs.map(d => {
+      const r   = d.data();
+      const ts  = r.timestamp?.toDate ? fmtTs(r.timestamp.toDate()) : '';
+      const isMe = r.agentUid === currentUser?.uid;
+      const tmpl = r.templateUsed ? `<span class="bubble-tmpl">${esc(TEMPLATE_LABELS[r.templateUsed]||r.templateUsed)}</span>` : '';
+      return `<div class="msg-bubble agent-msg">
+        <div class="bubble-meta">
+          <span class="bubble-name">${esc(r.agentName||'Agent')}</span>
+          ${isMe ? `<span style="font-size:10px;color:var(--muted)">(you)</span>` : ''}
+          <span>${ts}</span>
+          ${tmpl}
+        </div>
+        <div class="bubble-body">${esc(r.content||'')}</div>
+      </div>`;
+    }).join('');
+    body.scrollTop = body.scrollHeight;
+  }, err => {
+    body.innerHTML = `<div class="thread-empty" style="color:#ffb3b3">Error loading thread: ${esc(err.message)}</div>`;
+  });
+}
+
+/* ──────────────────────────────────────────────────────────────
+   NOTES SUBSCRIPTION  (internal only, isInternal=true)
+   ────────────────────────────────────────────────────────────── */
+function subscribeNotes(ticketId) {
+  if (unsubNotes) { unsubNotes(); unsubNotes = null; }
+  const q = query(
+    collection(db, 'tickets', ticketId, 'responses'),
+    where('isInternal', '==', true),
+    orderBy('timestamp', 'asc')
+  );
+  const thread = el('notes-thread');
+  unsubNotes = onSnapshot(q, snap => {
+    if (snap.empty) {
+      thread.innerHTML = `<div class="note-empty">No internal notes yet.</div>`;
+      return;
+    }
+    thread.innerHTML = snap.docs.map(d => {
+      const r   = d.data();
+      const ts  = r.timestamp?.toDate ? fmtTs(r.timestamp.toDate()) : '';
+      const isMe = r.agentUid === currentUser?.uid;
+      return `<div class="note-msg${isMe?' note-me':''}">
+        <div class="note-head">
+          <span class="note-author">${esc(r.agentName||'Agent')}</span>
+          <span class="note-time">${ts}</span>
+        </div>
+        <div class="note-body">${esc(r.content||'')}</div>
+      </div>`;
+    }).join('');
+    thread.scrollTop = thread.scrollHeight;
+  });
+}
+
+/* ──────────────────────────────────────────────────────────────
+   TEMPLATE LOADING
+   ────────────────────────────────────────────────────────────── */
+el('load-tmpl-btn').addEventListener('click', loadTemplate);
+el('tmpl-select').addEventListener('change', () => {
+  if (el('tmpl-select').value) loadTemplate();
+});
+
+function loadTemplate() {
+  const key = el('tmpl-select').value;
+  if (!key || !TEMPLATES[key]) return;
+
+  let text = TEMPLATES[key];
+
+  /* Auto-fill agent name wherever "my name is (------)" appears */
+  if (currentUser) {
+    const name = currentUser.displayName || currentUser.email || 'Agent Name';
+    text = text.replace(/my name is \(------\)/gi, `my name is ${name}`);
+  }
+
+  el('response-text').value = text;
+  checkPlaceholders();
+  showMsg('composer-msg', `Template loaded. Fill all remaining (------) placeholders before sending.`, 'info', 4000);
+}
+
+el('clear-btn').addEventListener('click', () => {
+  el('response-text').value = '';
+  el('tmpl-select').value   = '';
+  checkPlaceholders();
+});
+
+el('response-text').addEventListener('input', checkPlaceholders);
+
+function checkPlaceholders() {
+  const count = (el('response-text').value.match(/\(------\)/g) || []).length;
+  const warn  = el('ph-warning');
+  el('ph-warning-text').textContent = count === 1
+    ? `1 unfilled placeholder remains. Replace (------) before sending.`
+    : `${count} unfilled placeholders remain. Replace all (------) before sending.`;
+  warn.classList.toggle('visible', count > 0);
+}
+
+/* ──────────────────────────────────────────────────────────────
+   SEND PUBLIC RESPONSE
+   ────────────────────────────────────────────────────────────── */
+el('send-btn').addEventListener('click', sendResponse);
+
+async function sendResponse() {
+  if (!currentUser || !activeTicket) return;
+  const text = el('response-text').value.trim();
+
+  if (!text) {
+    showMsg('composer-msg', 'Response cannot be empty.', 'error'); return;
+  }
+  if (text.includes('(------)')) {
+    showMsg('composer-msg', 'Fill in all (------) placeholders before sending.', 'error'); return;
+  }
+
+  const btn = el('send-btn');
+  btn.disabled = true;
+  btn.innerHTML = `<div class="spinner"></div> Sending…`;
+
+  try {
+    const agentName = currentUser.displayName || currentUser.email || 'Agent';
+    await addDoc(collection(db, 'tickets', activeTicket.id, 'responses'), {
+      agentName,
+      agentUid:     currentUser.uid,
+      content:      text,
+      templateUsed: el('tmpl-select').value || null,
+      isInternal:   false,
+      timestamp:    serverTimestamp()
+    });
+
+    /* Optional status update */
+    const newStatus = el('status-select').value;
+    await updateDoc(doc(db, 'tickets', activeTicket.id), {
+      ...(newStatus ? { status: newStatus } : {}),
+      lastResponseAt: serverTimestamp(),
+      lastResponseBy: agentName,
+      updatedAt:      serverTimestamp()
+    });
+
+    /* Clear editor */
+    el('response-text').value = '';
+    el('tmpl-select').value   = '';
+    el('status-select').value = '';
+    checkPlaceholders();
+    showMsg('composer-msg', '✓ Response sent.', 'success', 3500);
+  } catch(err) {
+    showMsg('composer-msg', `Error: ${err.message}`, 'error');
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send`;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   SEND INTERNAL NOTE
+   ────────────────────────────────────────────────────────────── */
+el('send-note-btn').addEventListener('click', sendNote);
+el('note-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendNote(); }
+});
+
+async function sendNote() {
+  if (!currentUser || !activeTicket) return;
+  const text = el('note-input').value.trim();
+  if (!text) return;
+
+  el('send-note-btn').disabled = true;
+  try {
+    await addDoc(collection(db, 'tickets', activeTicket.id, 'responses'), {
+      agentName:    currentUser.displayName || currentUser.email || 'Agent',
+      agentUid:     currentUser.uid,
+      content:      text,
+      templateUsed: null,
+      isInternal:   true,
+      timestamp:    serverTimestamp()
+    });
+    el('note-input').value = '';
+  } catch(err) {
+    showMsg('notes-msg', `Error: ${err.message}`, 'error');
+    console.error(err);
+  } finally {
+    el('send-note-btn').disabled = false;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   QUEUE FILTER + SEARCH
+   ────────────────────────────────────────────────────────────── */
+el('filter-tabs').addEventListener('click', e => {
+  const btn = e.target.closest('.tab-btn');
+  if (!btn) return;
+  document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
+  btn.classList.add('active');
+  btn.setAttribute('aria-selected','true');
+  filterStatus = btn.dataset.filter;
+  renderQueue(filtered());
+  updateCount();
+});
+
+el('queue-search').addEventListener('input', e => {
+  searchQuery = e.target.value.trim();
+  renderQueue(filtered());
+  updateCount();
+});
+
+el('reload-btn').addEventListener('click', () => { if (currentUser) subscribeQueue(); });
+
+/* ──────────────────────────────────────────────────────────────
+   COMPOSER TABS
+   ────────────────────────────────────────────────────────────── */
+document.querySelectorAll('.c-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.c-tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+    document.querySelectorAll('.c-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    tab.setAttribute('aria-selected','true');
+    el(`panel-${tab.dataset.tab}`).classList.add('active');
+  });
+});
+
+/* ──────────────────────────────────────────────────────────────
+   NEW TICKET MODAL
+   ────────────────────────────────────────────────────────────── */
+el('new-ticket-btn').addEventListener('click', openNewTicketModal);
+
+function openNewTicketModal() {
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.innerHTML = `
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-title" id="modal-title">Create New Ticket</div>
+      <div id="modal-msg" class="msg-strip" style="margin-bottom:10px;"></div>
+      <div class="modal-fields">
+        <div>
+          <label for="nt-subject">Subject <span style="color:#ffb3b3">*</span></label>
+          <input id="nt-subject" style="width:100%;" placeholder="Brief subject of the ticket" autocomplete="off">
+        </div>
+        <div class="modal-row">
+          <div>
+            <label for="nt-name">Member Name <span style="color:#ffb3b3">*</span></label>
+            <input id="nt-name" placeholder="Full name">
+          </div>
+          <div>
+            <label for="nt-cid">CID</label>
+            <input id="nt-cid" placeholder="SH-XXXXX">
+          </div>
+        </div>
+        <div>
+          <label for="nt-email">Member Email</label>
+          <input id="nt-email" type="email" style="width:100%;" placeholder="member@example.com">
+        </div>
+        <div>
+          <label for="nt-cat">Category</label>
+          <select id="nt-cat" style="width:100%;">
+            <option value="general">General Enquiry</option>
+            <option value="modification">Account Modification</option>
+            <option value="suspension">Suspension / Appeal</option>
+            <option value="technical">Technical Issue</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label for="nt-desc">Initial Description</label>
+          <textarea id="nt-desc" style="width:100%;min-height:72px;" placeholder="Describe the issue or request…"></textarea>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost btn-sm" id="modal-cancel">Cancel</button>
+        <button class="btn btn-sm" id="modal-submit">Create Ticket</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  overlay.querySelector('#modal-cancel').addEventListener('click', () => overlay.remove());
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  overlay.querySelector('#nt-subject').focus();
+
+  overlay.querySelector('#modal-submit').addEventListener('click', async () => {
+    const subject = overlay.querySelector('#nt-subject').value.trim();
+    const name    = overlay.querySelector('#nt-name').value.trim();
+    if (!subject || !name) {
+      const m = overlay.querySelector('#modal-msg');
+      m.textContent = 'Subject and member name are required.';
+      m.className = 'msg-strip error';
+      return;
+    }
+    overlay.querySelector('#modal-submit').disabled = true;
+    try {
+      const ref = await addDoc(collection(db, 'tickets'), {
+        subject,
+        memberName:  name,
+        memberCID:   overlay.querySelector('#nt-cid').value.trim(),
+        memberEmail: overlay.querySelector('#nt-email').value.trim(),
+        category:    overlay.querySelector('#nt-cat').value,
+        description: overlay.querySelector('#nt-desc').value.trim(),
+        status:      'open',
+        assignedTo:  null,
+        createdBy:   { uid: currentUser.uid, name: currentUser.displayName || currentUser.email },
+        createdAt:   serverTimestamp(),
+        updatedAt:   serverTimestamp()
+      });
+      overlay.remove();
+      /* Auto-select the new ticket once the queue updates */
+      setTimeout(() => openTicket(ref.id), 600);
+    } catch(err) {
+      const m = overlay.querySelector('#modal-msg');
+      m.textContent = `Error: ${err.message}`;
+      m.className = 'msg-strip error';
+      overlay.querySelector('#modal-submit').disabled = false;
+    }
+  });
+}
+
+/* ──────────────────────────────────────────────────────────────
+   HELPERS
+   ────────────────────────────────────────────────────────────── */
+function el(id) { return document.getElementById(id); }
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+function timeAgo(d) {
+  const diff = Date.now() - d;
+  const m = 60e3, h = 60*m, day = 24*h;
+  if (diff < m)   return 'just now';
+  if (diff < h)   return `${Math.floor(diff/m)}m ago`;
+  if (diff < day) return `${Math.floor(diff/h)}h ago`;
+  if (diff < 7*day) return `${Math.floor(diff/day)}d ago`;
+  return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+}
+
+function fmtTs(d) {
+  return d.toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+}
+
+function cssStatus(s) {
+  return {open:'open',in_progress:'prog',resolved:'res',closed:'closed'}[s]||'open';
+}
+
+function labelStatus(s) {
+  return {open:'Open',in_progress:'In Progress',resolved:'Resolved',closed:'Closed'}[s]||s;
+}
+
+function setMsg(id, text, type='', autoDismiss=0) {
+  const m = el(id);
+  if (!m) return;
+  if (!text) { m.textContent=''; m.className='msg-strip'; return; }
+  m.textContent = text;
+  m.className   = `msg-strip ${type}`;
+  if (autoDismiss) setTimeout(() => setMsg(id,''), autoDismiss);
+}
+
+function showMsg(id, text, type, autoDismiss=0) { setMsg(id, text, type, autoDismiss); }
+
+</script>
+</body>
+</html>
